@@ -16,3 +16,4 @@ dug_seis/waveform_handler/__pycache__/*
 # C extensions
 *.so
 *.o
+/scripts_own/
