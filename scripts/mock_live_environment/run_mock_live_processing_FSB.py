@@ -164,7 +164,7 @@ def launch_processing(project):
     logger.info(f"Found {total_event_count} events.")
 
 
-with open("./live_processing_FSB.yaml", "r") as fh:
+with open("live_processing_FSB.yaml", "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)
 
 all_folders = [
