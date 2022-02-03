@@ -33,7 +33,7 @@ from dug_seis.waveform_handler.waveform_handler import FILENAME_REGEX
 DATA_FOLDER = pathlib.Path(
     r'/bear0-data/FSB/FSB_h5'
 )
-FAKE_ACQUISITION_FOLDER = pathlib.Path(r"fake_live_data/asdf")
+FAKE_ACQUISITION_FOLDER = pathlib.Path(r"/global/home/users/chopp/fake_live_data/asdf")
 INITIAL_DELAY_IN_SECONDS = 10.0
 ###########################################################################
 

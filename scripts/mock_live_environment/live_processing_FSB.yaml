@@ -6,16 +6,16 @@ meta:
   project_description: Grimsel_dummy
 
 local_coordinate_system:
-  epsg_code: 21781
-  translation_vector: [579300.0, 247500.0, 500.0]
+  epsg_code: 'ch1903+'
+  translation_vector: [0.0, 0.0, 0.0]
 
 paths:
   asdf_folders:
-    - 'fake_live_data/asdf'
+    - '/global/home/users/chopp/fake_live_data/asdf'
   stationxml_folders:
-    - 'chet-FS-B/network_design/inventories/single_channel'
+    - '/global/home/users/chopp/chet-FS-B/network_design/inventories/single_channel'
   database: 'sqlite://fake_live_data/db.sqlite'
-  cache_folder: 'fake_live_data/cache'
+  cache_folder: '/global/home/users/chopp/fake_live_data/cache'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
