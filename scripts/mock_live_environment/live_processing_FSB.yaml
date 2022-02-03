@@ -6,7 +6,7 @@ meta:
   project_description: Grimsel_dummy
 
 local_coordinate_system:
-  epsg_code: 'ch1903+'
+  epsg_code: 2056
   translation_vector: [0.0, 0.0, 0.0]
 
 paths:
