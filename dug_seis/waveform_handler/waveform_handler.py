@@ -319,6 +319,7 @@ class WaveformHandler:
         sr = set(i["index_sampling_rate_in_hz"] for i in cache.values())
         sr_d = set(i["data_sampling_rate_in_hz"] for i in cache.values())
         st = set(i["start_time_stamp_in_ns"] for i in cache.values())
+        print(st)
         assert len(sr) == 1
         assert len(st) == 1
 
