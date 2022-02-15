@@ -182,15 +182,7 @@ class WaveformHandler:
         Use a LRU cache to get fast repeated file accesses.
         """
         # Get files - already cached.
-        ds = self._get_open_asdf_file(filename)
-
-        sta = ds.waveforms[".".join(channel_id.split(".")[:2])]
-        items = [i for i in sta.list() if i.startswith(channel_id)]
-        if not len(items):
-            raise ValueError(f"Could not find data for channel '{channel_id}'")
-        assert len(items) == 1, f"{items}"
-        st = sta[items[0]]
-
+        st = vibbox_read(filename, self.seeds, debug=0).select(id=channel_id)
         return st[0]
 
     def _build_cache(self):

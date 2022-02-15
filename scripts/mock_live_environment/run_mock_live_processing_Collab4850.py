@@ -63,7 +63,7 @@ def launch_processing(project):
                 'SV.OB13..XNZ', 'SV.OB13..XNX', 'SV.OB13..XNY', 'SV.OB15..XNZ',
                 'SV.OB15..XNX', 'SV.OB15..XNY', 'SV.OT16..XNZ', 'SV.OT16..XNX',
                 'SV.OT16..XNY', 'SV.OT18..XNZ', 'SV.OT18..XNX', 'SV.OT18..XNY',
-                'SV.CTrg..'
+                'SV.CTrig..'
             ],
             start_time=interval_start,
             end_time=interval_end,
@@ -73,7 +73,7 @@ def launch_processing(project):
         detected_events = dug_trigger(
             st=st_triggering,
             # Helps with classification.
-            active_triggering_channel="SV.CTrg..",
+            active_triggering_channel="SV.CTrig..",
             minimum_time_between_events_in_seconds=0.0006,
             max_spread_electronic_interference_in_seconds=2e-5,
             # Passed on the coincidence trigger.
