@@ -491,6 +491,7 @@ class WaveformHandler:
             start_time: The start time of the requested data.
             end_time: The end time of the requested data.
         """
+        print(start_time, end_time)
         st = self.get_waveform_data(
                 channel_ids=channel_ids,
                 start_time=start_time,
@@ -520,15 +521,16 @@ class WaveformHandler:
             and value["endtime"] > start_time
             and all([c in self._filename_receivers_map[key] for c in channel_ids])
         }
-
+        print(start_time, end_time)
         if not files:
             raise ValueError("Could not find data.")
 
         st = obspy.Stream()
         for f in files:
             st += self._get_open_vibbox_file(f)
-
+        print(st.traces)
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
+        print(st.traces)
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
             breakpoint()
