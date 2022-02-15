@@ -41,7 +41,7 @@ def launch_processing(project):
     intervals = util.compute_intervals(
         project=project, interval_length_in_seconds=10, interval_overlap_in_seconds=0.1
     )
-
+    print(intervals)
     total_event_count = 0
 
     for interval_start, interval_end in tqdm.tqdm(intervals):
