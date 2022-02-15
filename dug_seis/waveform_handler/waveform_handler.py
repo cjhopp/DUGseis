@@ -164,17 +164,18 @@ class WaveformHandler:
         return self._cache["cache_dt_ns"]
 
     @functools.lru_cache(maxsize=20)
-    def _get_open_asdf_file(self, filename: pathlib.Path) -> pyasdf.ASDFDataSet:
+    def _get_open_vibbox_file(self, filename: pathlib.Path) -> obspy.Stream:
         """
         Get an open ASDF file.
 
         Use a LRU cache to get fast repeated file accesses.
         """
-        return pyasdf.ASDFDataSet(filename=str(filename), mode="r")
+        return vibbox_read(filename, self.seeds, debug=0)
+
 
     @functools.lru_cache(maxsize=200)
-    def _get_channel_from_file(
-        self, filename: pathlib.Path, channel_id: str
+    def _get_channel_from_stream(
+        self, stream: obspy.Stream, channel_id: str
     ) -> obspy.Trace:
         """
         Get an open ASDF file.
@@ -182,8 +183,8 @@ class WaveformHandler:
         Use a LRU cache to get fast repeated file accesses.
         """
         # Get files - already cached.
-        st = vibbox_read(filename, self.seeds, debug=0).select(id=channel_id)
-        return st[0]
+        tr = stream.select(id=channel_id)
+        return tr
 
     def _build_cache(self):
         self._cache_folder.mkdir(parents=True, exist_ok=True)
@@ -490,22 +491,18 @@ class WaveformHandler:
             start_time: The start time of the requested data.
             end_time: The end time of the requested data.
         """
-        st = obspy.Stream()
-        for channel_id in channel_ids:
-            st.append(
-                self.get_waveform_data(
-                    channel_id=channel_id,
-                    start_time=start_time,
-                    end_time=end_time,
-                    npts=10000000000000,
-                    return_trace=True,
-                )
+        st = self.get_waveform_data(
+                channel_ids=channel_ids,
+                start_time=start_time,
+                end_time=end_time,
+                npts=10000000000000,
+                return_trace=True,
             )
         return st
 
     def get_waveform_data(
         self,
-        channel_id: str,
+        channel_ids: typing.List[str],
         start_time: obspy.UTCDateTime,
         end_time: obspy.UTCDateTime,
         npts: int,
@@ -521,32 +518,30 @@ class WaveformHandler:
             for key, value in self._files.items()
             if value["starttime"] <= end_time
             and value["endtime"] > start_time
-            and channel_id in self._filename_receivers_map[key]
+            and all([c in self._filename_receivers_map[key] for c in channel_ids])
         }
 
         if not files:
             raise ValueError("Could not find data.")
 
-        st = obspy.Stream(
-            traces=[
-                self._get_channel_from_file(filename=f, channel_id=channel_id).copy()
-                for f in files.keys()
-            ]
-        )
+        st = obspy.Stream()
+        for f in files:
+            st += self._get_open_vibbox_file(f)
+
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
-            print(channel_id)
             breakpoint()
         for tr in st:
             tr.stats.delta = list(deltas)[0]
         st.merge()
-        assert len(st) == 1, "Merging failed somehow."
-        tr = st[0]
+        # assert len(st) == 1, "Merging failed somehow."
 
         if return_trace:
-            return tr
+            return st
 
+        assert len(channel_ids) == 1, "Ask for only 1 chan unless 'return_trace'"
+        tr = st.select(id=channel_ids[0])
         # If it has too many samples, bin the data.
         if tr.stats.npts > npts * 2:
             factor = int(tr.stats.npts // npts)
