@@ -521,23 +521,20 @@ class WaveformHandler:
             and value["endtime"] > start_time
             and all([c in self._filename_receivers_map[key] for c in channel_ids])
         }
-        print(start_time, end_time)
         if not files:
             raise ValueError("Could not find data.")
 
         st = obspy.Stream()
         for f in files:
             st += self._get_open_vibbox_file(f).copy()
-        print(st.traces)
+
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
-        print(st.traces)
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
             breakpoint()
         for tr in st:
             tr.stats.delta = list(deltas)[0]
         st.merge()
-        # assert len(st) == 1, "Merging failed somehow."
 
         if return_trace:
             return st

@@ -101,19 +101,13 @@ def launch_processing(project):
 
         # Now loop over the detected events.
         added_event_count = 0
-        all_channels = sorted(project.channels.keys())
 
         for event_candidate in detected_events:
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
-            st_event = project.waveforms.get_waveforms(
-                # All but the first because that is the active triggering channel
-                # here.
-                channel_ids=all_channels,
+            st_event = st_triggering.slice(
                 start_time=event_candidate["time"] - 5e-3,
-                end_time=event_candidate["time"] + 25e-3,
-            )
-
+                end_time=event_candidate["time"] + 25e-3).copy()
             # Optionally remove the instrument response if necessary.
             # Requires StationXML files where this is possible.
             # st_event.remove_response(inventory=project.inventory, output="VEL")
