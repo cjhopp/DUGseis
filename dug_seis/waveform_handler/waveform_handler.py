@@ -71,13 +71,14 @@ class WaveformHandler:
         index_sampling_rate_in_hz: int,
         start_time: obspy.UTCDateTime,
         end_time: obspy.UTCDateTime,
-        seeds: typing.List[str]
+        seeds: [str]
     ):
         self._start_time = start_time
         self._end_time = end_time
         self._index_sampling_rate_in_hz = index_sampling_rate_in_hz
         self._waveform_folders = [pathlib.Path(i) for i in waveform_folders]
         self._cache_folder = pathlib.Path(cache_folder)
+        self.seeds = seeds
         self._open_folder()
         self._build_cache()
 
