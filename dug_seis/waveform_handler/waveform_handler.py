@@ -440,10 +440,10 @@ class WaveformHandler:
             )
 
         # For now only a single time range is supported!
-        if len(time_ranges) != 1:
-            raise NotImplementedError(
-                "Currently only supports a single continuous time range."
-            )
+        # if len(time_ranges) != 1:
+        #     raise NotImplementedError(
+        #         "Currently only supports a single continuous time range."
+        #     )
 
         self._time_ranges = time_ranges
 
