@@ -46,6 +46,7 @@ def launch_processing(project):
 
     for interval_start, interval_end in tqdm.tqdm(intervals):
         # Run the trigger only on a few waveforms.
+        print('Interval: {} {}'.format(interval_start, interval_end))
         st_triggering = project.waveforms.get_waveforms(
             channel_ids=[
                 'SV.PDB01..XN1', 'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1',
