@@ -34,16 +34,14 @@ import tqdm
 from ..util import pretty_filesize
 from .indexing import index_trace, combine_caches, _interweave_arrays
 from .utils import compute_sha256_hash_for_file
+from .vibbox import vibbox_read
 
 logger = logging.getLogger(__name__)
 
 FILENAME_REGEX = re.compile(
     r"""
 ^                                                              # Beginning of string
-(\d{4})_(\d{2})_(\d{2})T(\d{2})_(\d{2})_(\d{2})[_\.](\d{6})Z?  # Start time as capture groups
-__                                                             #
-(\d{4})_(\d{2})_(\d{2})T(\d{2})_(\d{2})_(\d{2})[_\.](\d{6})Z?  # End time as capture groups
-__
+vbox_(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{4})         # System creation time as capture groups
 .*                                                             # Rest of name
 $                                                              # End of string.
 """,
@@ -63,6 +61,7 @@ class WaveformHandler:
             index.
         start_time: Limit temporal range.
         end_time: Limit temporal range.
+        seeds: List of SEED ids in order they're written to the binary file
     """
 
     def __init__(
@@ -72,6 +71,7 @@ class WaveformHandler:
         index_sampling_rate_in_hz: int,
         start_time: obspy.UTCDateTime,
         end_time: obspy.UTCDateTime,
+        seeds: typing.List[str]
     ):
         self._start_time = start_time
         self._end_time = end_time
@@ -303,17 +303,12 @@ class WaveformHandler:
 
         cache = {}
         # Open file and index each trace.
-        with pyasdf.ASDFDataSet(waveform_file, mode="r") as ds:
-            for station in ds.waveforms:
-                tags = station.get_waveform_tags()
-                assert len(tags) == 1
-                tag = tags[0]
-                st = station[tag]
-                for tr in st:
-                    cache[tr.id] = index_trace(
-                        trace=tr,
-                        index_sampling_rate_in_hz=self._index_sampling_rate_in_hz,
-                    )
+        st = vibbox_read(waveform_file, self.seeds, debug=0)
+        for tr in st:
+            cache[tr.id] = index_trace(
+                trace=tr,
+                index_sampling_rate_in_hz=self._index_sampling_rate_in_hz,
+            )
 
         # Some sanity checks to make sure every trace is idencial.
         sr = set(i["index_sampling_rate_in_hz"] for i in cache.values())
@@ -370,7 +365,7 @@ class WaveformHandler:
         # Loop over all files and store some basic information.
         files = []
         for folder in self._waveform_folders:
-            files.extend([i for i in folder.glob("*__*__*.h5") if i.is_file()])
+            files.extend([i for i in folder.glob("vbox_*.dat") if i.is_file()])
         total_size = 0
         for f in files:
             m = re.match(FILENAME_REGEX, f.stem)
@@ -380,8 +375,8 @@ class WaveformHandler:
             s = f.stat()
 
             # Filter the times.
-            starttime = obspy.UTCDateTime(*[int(i) for i in g[:7]])
-            endtime = obspy.UTCDateTime(*[int(i) for i in g[7:]])
+            starttime = obspy.UTCDateTime(*[int(i) for i in g])
+            endtime = starttime + 32.  # Temporary hack for 32s VBox
             if starttime > self._end_time or endtime < self._start_time:
                 continue
 

@@ -212,6 +212,10 @@ _CONFIG_FILE_SCHEMA = schema.Schema(
                 ),
             }
         ],
+        "vibbox":
+            {
+                "seeds": [str]
+            }
     }
 )
 
@@ -268,6 +272,7 @@ class DUGSeisProject:
             index_sampling_rate_in_hz=100,
             start_time=self.config["temporal_range"]["start_time"],
             end_time=self.config["temporal_range"]["end_time"],
+            seeds=self.config["vibbox"]["seeds"]
         )
 
         # Time to check that the data also corresponds to the StationXML
