@@ -106,8 +106,8 @@ def launch_processing(project):
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
             st_event = st_triggering.slice(
-                start_time=event_candidate["time"] - 5e-3,
-                end_time=event_candidate["time"] + 25e-3).copy()
+                starttime=event_candidate["time"] - 5e-3,
+                endtime=event_candidate["time"] + 25e-3).copy()
             # Optionally remove the instrument response if necessary.
             # Requires StationXML files where this is possible.
             # st_event.remove_response(inventory=project.inventory, output="VEL")
