@@ -536,6 +536,7 @@ class WaveformHandler:
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
+            print(channel_id)
             breakpoint()
         for tr in st:
             tr.stats.delta = list(deltas)[0]
