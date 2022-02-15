@@ -46,11 +46,11 @@ graphical_interface:
     color_channels: [0.1, 0.9, 0.0, 0.4]
 
 filters:
-  - filter_id: smi:local/bandpass_causal_1000_5000
+  - filter_id: smi:local/bandpass_causal_1000_15000
     filter_settings:
       filter_type: butterworth_bandpass
       highpass_frequency_in_hz: 1000.0
-      lowpass_frequency_in_hz: 10000.0
+      lowpass_frequency_in_hz: 15000.0
       filter_corners: 4
       zerophase: false
 
