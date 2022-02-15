@@ -530,7 +530,7 @@ class WaveformHandler:
         # Take only the channels we want
         rms = [tr for tr in st if tr.id not in channel_ids]
         for rm in rms:
-            st.remove(rm
+            st.remove(rm)
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
