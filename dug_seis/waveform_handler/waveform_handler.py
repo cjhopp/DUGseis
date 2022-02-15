@@ -527,7 +527,7 @@ class WaveformHandler:
 
         st = obspy.Stream()
         for f in files:
-            st += self._get_open_vibbox_file(f)
+            st += self._get_open_vibbox_file(f).copy()
         print(st.traces)
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st.traces)
