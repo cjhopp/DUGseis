@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 def launch_processing(project):
     # Helper function to compute intervals over the project.
     intervals = util.compute_intervals(
-        project=project, interval_length_in_seconds=16, interval_overlap_in_seconds=0.1
+        project=project, interval_length_in_seconds=10, interval_overlap_in_seconds=0.1
     )
 
     total_event_count = 0
