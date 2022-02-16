@@ -31,7 +31,7 @@ util.setup_logging_to_file(
     # folder=".",
     # If folder is not specified it will not log to a file but only to stdout.
     folder=None,
-    log_level="info",
+    log_level="debug",
 )
 logger = logging.getLogger(__name__)
 

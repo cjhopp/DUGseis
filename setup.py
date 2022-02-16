@@ -40,6 +40,7 @@ _install_requires = [
     "schema",
     "scipy",
     "tqdm",
+    "cython",
 ]
 
 setup(

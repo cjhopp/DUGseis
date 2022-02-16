@@ -169,9 +169,9 @@ def dug_picker(
             freqmax=picker_opts["bandpass_f_max"],
         )
         chenPicker = AICDPicker(
-            t_ma=picker_opts["t_ma"] / 1000,
+            t_ma=picker_opts["t_ma"],# / 1000,
             nsigma=picker_opts["nsigma"],
-            t_up=picker_opts["t_up"] / 1000,
+            t_up=picker_opts["t_up"],# / 1000,
             nr_len=picker_opts["nr_len"],
             nr_coeff=picker_opts["nr_coeff"],
             pol_len=picker_opts["pol_len"],
@@ -204,7 +204,7 @@ def dug_picker(
                         evaluation_mode="automatic",
                     )
                 )
-
+        print(final_picks)
         return final_picks
 
     # apply the STA LTA picker.

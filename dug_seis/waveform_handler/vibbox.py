@@ -66,7 +66,7 @@ def vibbox_read(fname, seeds, debug=0):
         dt = np.diff(A[:, clock_channel])
         # Use 70 * MAD threshold
         samp_to_first_full_second = np.where(
-            dt > np.mean(dt) + 70 * median_absolute_deviation(dt))[0][0]
+            dt > np.mean(dt) + 30 * median_absolute_deviation(dt))[0][0]
         # Condition where PPS not recorded properly
         if samp_to_first_full_second > 101000:
             print('Cannot read time signal')
@@ -76,13 +76,13 @@ def vibbox_read(fname, seeds, debug=0):
             print('Start of data is during time pulse. Using end of pulse.')
             # Negative dt
             samp_to_first_full_second = np.where(
-                dt < np.mean(dt) - 70 *
+                dt < np.mean(dt) - 30 *
                 median_absolute_deviation(dt))[0][0] + 90000
         if debug > 0:
             fig, ax = plt.subplots()
             ax.plot(dt, color='r')
             ax.plot(A[:, clock_channel], color='k')
-            ax.axhline(y=np.mean(dt) + 70 * median_absolute_deviation(dt),
+            ax.axhline(y=np.mean(dt) + 30 * median_absolute_deviation(dt),
                        color='magenta', linestyle='--')
             ax.axvline(x=samp_to_first_full_second, color='magenta',
                        linestyle='--')
@@ -96,7 +96,7 @@ def vibbox_read(fname, seeds, debug=0):
                                FREQUENCY))))
     except Exception as e:
         print(e)
-        print('Cannot read time exact signal: ' + fname +
+        print('Cannot read exact time signal: ' + fname +
               '. Taking an approximate one instead')
         starttime = UTCDateTime(
             np.int(fname[5:9]), np.int(fname[9:11]), np.int(fname[11:13]),
