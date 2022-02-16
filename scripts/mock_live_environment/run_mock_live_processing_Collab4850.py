@@ -48,21 +48,21 @@ def launch_processing(project):
         print('Interval: {} {}'.format(interval_start, interval_end))
         st_triggering = project.waveforms.get_waveforms(
             channel_ids=[
-                'SV.PDB01..XN1', 'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1',
-                'SV.PDB05..XN1', 'SV.PDB06..XN1', 'SV.PDB07..XN1', 'SV.PDB08..XN1',
+                'SV.PDT1..XNZ', 'SV.PDB3..XNZ', 'SV.PDB4..XNZ', 'SV.PDB6..XNZ',
+                'SV.PSB7..XNZ', 'SV.PSB9..XNZ', 'SV.PST10..XNZ', 'SV.PST12..XNZ',
+                'SV.OB13..XNZ', 'SV.OB15..XNZ', 'SV.OT16..XNZ', 'SV.PDB01..XN1',
+                'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1', 'SV.PDB05..XN1',
+                'SV.PDB06..XN1', 'SV.PDB07..XN1', 'SV.PDB08..XN1',
                 'SV.PDB09..XN1', 'SV.PDB10..XN1', 'SV.PDB11..XN1', 'SV.PDB12..XN1',
                 'SV.OT01..XN1', 'SV.OT02..XN1', 'SV.OT03..XN1', 'SV.OT04..XN1',
                 'SV.OT05..XN1', 'SV.OT06..XN1', 'SV.OT07..XN1', 'SV.OT08..XN1',
-                'SV.OT09..XN1', 'SV.OT10..XN1', 'SV.OT11..XN1', 'SV.OT12..XN1',
-                'SV.PDT1..XNZ', 'SV.PDB3..XNZ', 'SV.PDB4..XNZ', 'SV.PDB6..XNZ',
-                'SV.PSB7..XNZ', 'SV.PSB9..XNZ', 'SV.PST10..XNZ', 'SV.PST12..XNZ',
-                'SV.OB13..XNZ', 'SV.OB15..XNZ', 'SV.OT16..XNZ', 'SV.OT18..XNZ',
+                'SV.OT09..XN1', 'SV.OT10..XN1', 'SV.OT11..XN1', 'SV.OT12..XN1'
                 'SV.CTrig..'
             ],
             start_time=interval_start,
             end_time=interval_end,
         )
-
+        st_triggering.filter('highpass', freq=2000)
         # Standard DUGSeis trigger.
         detected_events = dug_trigger(
             st=st_triggering,
@@ -73,13 +73,13 @@ def launch_processing(project):
             # Passed on the coincidence trigger.
             conincidence_trigger_opts={
                 "trigger_type": "recstalta",
-                "thr_on": 7.0,
-                "thr_off": 1.5,
-                "thr_coincidence_sum": 2,
+                "thr_on": 6.0,
+                "thr_off": 2.0,
+                "thr_coincidence_sum": 6,
                 # The time windows are given in seconds.
-                "sta": 0.001,
-                "lta": 0.02,
-                "trigger_off_extension": 0.01,
+                "sta": 0.0007,
+                "lta": 0.007,
+                "trigger_off_extension": 0.0,
                 "details": True,
             },
         )
@@ -99,27 +99,31 @@ def launch_processing(project):
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
             st_event = st_triggering.slice(
-                starttime=event_candidate["time"] - 5e-3,
-                endtime=event_candidate["time"] + 25e-3).copy()
+                starttime=event_candidate["time"] - 3e-3,
+                endtime=event_candidate["time"] + 1e-2).copy()
+            # Remove the active trigger before picking
+            st_event.traces.remove(st_event.select(station='CTrig')[0])
             # Optionally remove the instrument response if necessary.
             # Requires StationXML files where this is possible.
             # st_event.remove_response(inventory=project.inventory, output="VEL")
-
+            st_event.detrend('demean')
+            st_event.detrend('linear')
             picks = dug_picker(
                     st=st_event,
                     pick_algorithm="aicd",
                     picker_opts={
                         # Here given as samples.
-                        "bandpass_f_min": 1000,
-                        "bandpass_f_max": 12000,
-                        "t_ma": 0.005,
-                        "nsigma": 6,
+                        "bandpass_f_min": 2000,
+                        "bandpass_f_max": 15000,
+                        "t_ma": 0.0003,
+                        "nsigma": 4,
                         "t_up": 0.00078,
-                        "nr_len": 2,
+                        "nr_len": 0.002,
                         "nr_coeff": 2,
-                        "pol_len": 10,
+                        "pol_len": 50,
                         "pol_coeff": 10,
                         "uncert_coeff": 3,
+                        "plot": False
                     },
                 )
 
@@ -133,7 +137,7 @@ def launch_processing(project):
             event = locate_in_homogeneous_background_medium(
                 picks=picks,
                 coordinates=project.cartesian_coordinates,
-                velocity=4866.0,
+                velocity=5900.0,
                 damping=0.01,
                 local_to_global_coordinates=project.local_to_global_coordinates,
             )
@@ -192,7 +196,6 @@ while True:
             continue
         raise err
     break
-
 
 launch_processing(project=project)
 

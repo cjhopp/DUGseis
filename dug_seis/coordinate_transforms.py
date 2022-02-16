@@ -54,7 +54,7 @@ import numpy as np
 import pyproj
 
 # For convenience.
-EPSG_CODES = {"WGS84": 4326, "CH1903": 21781}
+EPSG_CODES = {"WGS84": 4326, "CH1903": 21781, "NAD27": 4267}
 
 
 @functools.lru_cache(maxsize=128)

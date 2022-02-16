@@ -134,7 +134,8 @@ class WaveformPlotCurveItem(pg.PlotCurveItem):
             min_t = max(self.wh.starttime.timestamp, time_range[0] - duration)
             max_t = min(self.wh.endtime.timestamp, time_range[1] + duration)
             out = self.wh.get_waveform_data(
-                channel_id=self.channel_id, start_time=min_t, end_time=max_t, npts=30000
+                channel_ids=[self.channel_id], start_time=min_t, end_time=max_t,
+                npts=300000
             )
 
             data = out["data"]

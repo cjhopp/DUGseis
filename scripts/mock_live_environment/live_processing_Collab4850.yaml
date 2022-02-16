@@ -44,15 +44,51 @@ graphical_interface:
     size_channels_in_pixel: 3
     # Greenish color for channels.
     color_channels: [0.1, 0.9, 0.0, 0.4]
-
+    # Optionally plot some line segments. Useful to show certain features
+    # like boreholes in the 3-D plot. Coordinates are in the coordinate system
+    # defined above.
+    line_segments:
+      - [[813.77330196, -1345.66147694,   115.83359749], [811.19800112, -1283.72243938,   102.57291346]]
+      - [[822.12634569, -1332.82238695,   115.79214469], [819.7092772,  -1274.24085813,   102.17807586]]
+      - [[818.29165701, -1339.04183075,   115.5309311 ], [814.99592239, -1285.92999994,    87.45662623]]
+      - [[818.30964021, -1339.01714195,   116.01434389], [816.9641162, -1279.50840699,   108.26319772]]
+      - [[850.68579998, -1288.23929238,   116.16278148], [791.31128827, -1295.36828617,   110.81092025]]
+      - [[850.70713598, -1288.37675717,   115.7208215 ], [796.5172151, -1298.60542331,    91.1485583 ]]
+      - [[841.71431707, -1302.57677912,   115.6071311 ], [787.44801636, -1312.31700632,    91.83818394]]
+      - [[841.75637946, -1302.50515112,   116.06768389], [799.06740926, -1306.51346881,   113.16072753]]
+    # Width and color of the line segments.
+    line_segments_width: 4.0
+    line_segments_color: [0.0, 0.0, 1.0, 1.0]
 filters:
-  - filter_id: smi:local/bandpass_causal_1000_15000
+  - filter_id: smi:local/bandpass_causal_1000_12000
     filter_settings:
       filter_type: butterworth_bandpass
       highpass_frequency_in_hz: 1000.0
-      lowpass_frequency_in_hz: 15000.0
+      lowpass_frequency_in_hz: 12000.0
       filter_corners: 4
       zerophase: false
+  - filter_id: smi:local/bandpass_acausal_1000_12000
+    filter_settings:
+      filter_type: butterworth_bandpass
+      highpass_frequency_in_hz: 1000.0
+      lowpass_frequency_in_hz: 12000.0
+      filter_corners: 2
+      zerophase: true
+  # Example for a high-pass filter.
+  - filter_id: smi:local/highpass_acausal_2000
+    filter_settings:
+      filter_type: butterworth_highpass
+      frequency_in_hz: 2000.0
+      filter_corners: 4
+      zerophase: true
+  # Example for a low-pass filter.
+  - filter_id: smi:local/lowpass_acausal_500
+    filter_settings:
+      filter_type: butterworth_lowpass
+      frequency_in_hz: 500.0
+      filter_corners: 4
+      zerophase: true
+
 
 # Full list of each channel in the Vibbox binary. Order written.
 vibbox:

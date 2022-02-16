@@ -9,7 +9,7 @@ class AicDeriv():
 
     def _statistics(self, optimized=True):
         npts = self.tr.stats.npts
-        data = self.tr.data;
+        data = self.tr.data
         # delta = 1.0/self.tr.stats.sampling_rate
 
         if (not optimized):

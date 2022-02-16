@@ -20,6 +20,9 @@ Central picking routine in DUGSeis.
 import typing
 
 import obspy
+
+import numpy as np
+
 from obspy.core.event import WaveformStreamID, Pick
 from obspy.signal.trigger import recursive_sta_lta, trigger_onset
 
@@ -111,11 +114,10 @@ def dug_picker(
 
     # apply the kt (kurtosis) picker.
     elif pick_algorithm == "kt":
-
-        t_win = 1 / 2000
-        t_ma = 10 / 2000
+        t_win = 1 / 1000
+        t_ma = 10 / 1000
         nsigma = 6 / 100
-        t_up = 0.78 / 100
+        t_up = 0.78 / 50
         nr_len = 2
         nr_coeff = 2
         pol_len = 10
@@ -167,11 +169,13 @@ def dug_picker(
             "bandpass",
             freqmin=picker_opts["bandpass_f_min"],
             freqmax=picker_opts["bandpass_f_max"],
+            zerophase=True,
+            corners=2
         )
         chenPicker = AICDPicker(
-            t_ma=picker_opts["t_ma"],# / 1000,
+            t_ma=picker_opts["t_ma"],
             nsigma=picker_opts["nsigma"],
-            t_up=picker_opts["t_up"],# / 1000,
+            t_up=picker_opts["t_up"],
             nr_len=picker_opts["nr_len"],
             nr_coeff=picker_opts["nr_coeff"],
             pol_len=picker_opts["pol_len"],
@@ -186,10 +190,14 @@ def dug_picker(
             # Perform a linear detrend on the data
             tr.detrend("linear")
 
-            scnl, picks, polarity, snr, uncert = chenPicker.picks(tr)
-
+            scnl, picks, polarity, snr, uncert, sum, aics = chenPicker.picks(tr)
+            # Debug plot if needed
+            if 'plot' in picker_opts:
+                if picker_opts['plot']:
+                    sum.plot_summary()
             if len(picks):
-                t_pick_UTC = picks[0]
+                best_pick_ind = np.argmin(aics)
+                t_pick_UTC = picks[best_pick_ind]
                 final_picks.append(
                     Pick(
                         time=t_pick_UTC,
@@ -204,7 +212,6 @@ def dug_picker(
                         evaluation_mode="automatic",
                     )
                 )
-        print(final_picks)
         return final_picks
 
     # apply the STA LTA picker.

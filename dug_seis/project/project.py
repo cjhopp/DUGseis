@@ -346,7 +346,7 @@ class DUGSeisProject:
         self._local_to_global_coordinate_transform = functools.partial(
             local_to_global,
             local_crs=v_config["local_coordinate_system"]["epsg_code"],
-            global_crs="WGS84",
+            global_crs="NAD27",
             translation_vector=v_config["local_coordinate_system"][
                 "translation_vector"
             ],
@@ -354,7 +354,7 @@ class DUGSeisProject:
         self._global_to_local_coordinate_transform = functools.partial(
             global_to_local,
             local_crs=v_config["local_coordinate_system"]["epsg_code"],
-            global_crs="WGS84",
+            global_crs="NAD27",
             translation_vector=v_config["local_coordinate_system"][
                 "translation_vector"
             ],

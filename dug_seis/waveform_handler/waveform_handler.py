@@ -519,7 +519,8 @@ class WaveformHandler:
             for key, value in self._files.items()
             if value["starttime"] <= end_time
             and value["endtime"] > start_time
-            and all([c in self._filename_receivers_map[key] for c in channel_ids])
+            and all([c in self._filename_receivers_map[key]
+                     for c in channel_ids])
         }
         if not files:
             raise ValueError("Could not find data.")
@@ -543,7 +544,7 @@ class WaveformHandler:
             return st
 
         assert len(channel_ids) == 1, "Ask for only 1 chan unless 'return_trace'"
-        tr = st.select(id=channel_ids[0])
+        tr = st.select(id=channel_ids[0])[0]
         # If it has too many samples, bin the data.
         if tr.stats.npts > npts * 2:
             factor = int(tr.stats.npts // npts)
