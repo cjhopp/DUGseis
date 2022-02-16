@@ -41,7 +41,6 @@ def launch_processing(project):
     intervals = util.compute_intervals(
         project=project, interval_length_in_seconds=10, interval_overlap_in_seconds=0.1
     )
-    print(intervals)
     total_event_count = 0
 
     for interval_start, interval_end in tqdm.tqdm(intervals):
@@ -55,15 +54,9 @@ def launch_processing(project):
                 'SV.OT01..XN1', 'SV.OT02..XN1', 'SV.OT03..XN1', 'SV.OT04..XN1',
                 'SV.OT05..XN1', 'SV.OT06..XN1', 'SV.OT07..XN1', 'SV.OT08..XN1',
                 'SV.OT09..XN1', 'SV.OT10..XN1', 'SV.OT11..XN1', 'SV.OT12..XN1',
-                'SV.PDT1..XNZ', 'SV.PDT1..XNX', 'SV.PDT1..XNY', 'SV.PDB3..XNZ',
-                'SV.PDB3..XNX', 'SV.PDB3..XNY', 'SV.PDB4..XNZ', 'SV.PDB4..XNX',
-                'SV.PDB4..XNY', 'SV.PDB6..XNZ', 'SV.PDB6..XNX', 'SV.PDB6..XNY',
-                'SV.PSB7..XNZ', 'SV.PSB7..XNX', 'SV.PSB7..XNY', 'SV.PSB9..XNZ',
-                'SV.PSB9..XNX', 'SV.PSB9..XNY', 'SV.PST10..XNZ', 'SV.PST10..XNX',
-                'SV.PST10..XNY', 'SV.PST12..XNZ', 'SV.PST12..XNX', 'SV.PST12..XNY',
-                'SV.OB13..XNZ', 'SV.OB13..XNX', 'SV.OB13..XNY', 'SV.OB15..XNZ',
-                'SV.OB15..XNX', 'SV.OB15..XNY', 'SV.OT16..XNZ', 'SV.OT16..XNX',
-                'SV.OT16..XNY', 'SV.OT18..XNZ', 'SV.OT18..XNX', 'SV.OT18..XNY',
+                'SV.PDT1..XNZ', 'SV.PDB3..XNZ', 'SV.PDB4..XNZ', 'SV.PDB6..XNZ',
+                'SV.PSB7..XNZ', 'SV.PSB9..XNZ', 'SV.PST10..XNZ', 'SV.PST12..XNZ',
+                'SV.OB13..XNZ', 'SV.OB15..XNZ', 'SV.OT16..XNZ', 'SV.OT18..XNZ',
                 'SV.CTrig..'
             ],
             start_time=interval_start,
@@ -80,12 +73,12 @@ def launch_processing(project):
             # Passed on the coincidence trigger.
             conincidence_trigger_opts={
                 "trigger_type": "recstalta",
-                "thr_on": 8.0,
-                "thr_off": 2.0,
+                "thr_on": 7.0,
+                "thr_off": 1.5,
                 "thr_coincidence_sum": 2,
                 # The time windows are given in seconds.
-                "sta": 1.0 / 200000.0 * 50,
-                "lta": 1.0 / 200000.0 * 700,
+                "sta": 0.001,
+                "lta": 0.02,
                 "trigger_off_extension": 0.01,
                 "details": True,
             },
@@ -113,16 +106,22 @@ def launch_processing(project):
             # st_event.remove_response(inventory=project.inventory, output="VEL")
 
             picks = dug_picker(
-                st=st_event,
-                pick_algorithm="sta_lta",
-                picker_opts={
-                    # Here given as samples.
-                    "st_window": 70,
-                    "lt_window": 700,
-                    "threshold_on": 5.5,
-                    "threshold_off": 2.0,
-                },
-            )
+                    st=st_event,
+                    pick_algorithm="aicd",
+                    picker_opts={
+                        # Here given as samples.
+                        "bandpass_f_min": 1000,
+                        "bandpass_f_max": 12000,
+                        "t_ma": 0.005,
+                        "nsigma": 6,
+                        "t_up": 0.00078,
+                        "nr_len": 2,
+                        "nr_coeff": 2,
+                        "pol_len": 10,
+                        "pol_coeff": 10,
+                        "uncert_coeff": 3,
+                    },
+                )
 
             # We want at least three picks, otherwise we don't designate it an event.
             if len(picks) < 3:
@@ -166,11 +165,11 @@ def launch_processing(project):
         )
         total_event_count += added_event_count
 
-    logger.info("DONE.")
-    logger.info(f"Found {total_event_count} events.")
+        logger.info("DONE.")
+        logger.info(f"Found {total_event_count} events.")
 
 
-with open("/global/home/users/chopp/DUGseis/scripts/mock_live_environment/live_processing_Collab4850.yaml", "r") as fh:
+with open("/home/chet/DUGseis/scripts/mock_live_environment/live_processing_Collab4850.yaml", "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)
 
 all_folders = [

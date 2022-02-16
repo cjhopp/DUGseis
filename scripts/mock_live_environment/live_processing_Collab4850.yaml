@@ -6,16 +6,16 @@ meta:
   project_description: Collab4850_dummy
 
 local_coordinate_system:
-  epsg_code: 2056
-  translation_vector: [0.0, 0.0, 0.0]
+  epsg_code: 26713
+  translation_vector: [598420.3842806489, 4912272.275375654, 0.0]
 
 paths:
   asdf_folders:
-    - '/global/home/users/chopp/fake_live_data/asdf'
+    - '/home/chet/fake_live_data/asdf'
   stationxml_folders:
-    - '/global/home/users/chopp/chet-collab/stations/4850/single_station'
+    - '/media/chet/data/chet-collab/stations/4850/single_station'
   database: 'sqlite://fake_live_data/db.sqlite'
-  cache_folder: '/global/home/users/chopp/fake_live_data/cache'
+  cache_folder: '/home/chet/fake_live_data/cache'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
@@ -54,6 +54,7 @@ filters:
       filter_corners: 4
       zerophase: false
 
+# Full list of each channel in the Vibbox binary. Order written.
 vibbox:
   seeds:
     [ 'SV.PDB01..XN1', 'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1',

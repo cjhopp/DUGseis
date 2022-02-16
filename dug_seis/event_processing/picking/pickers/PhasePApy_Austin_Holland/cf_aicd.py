@@ -1,50 +1,50 @@
-# DUG-Seis Picker
-#
-# :copyright:
-#    ETH Zurich, Switzerland and The ObsPy Development Team (devs@obspy.org)
-# :license:
-#    GNU Lesser General Public License, Version 3
-#    (https://www.gnu.org/copyleft/lesser.html)
-#
-
-
 import numpy as np
+from .util import *
+import pyximport; pyximport.install(setup_args={"include_dirs":np.get_include()})
+from . import cf_aicd_stats
 
-
-class AicDeriv:
+class AicDeriv():
     def __init__(self, trace):
         self.tr = trace
 
-    def _statistics(self):
+    def _statistics(self, optimized=True):
         npts = self.tr.stats.npts
-        data = self.tr.data
-        # Variable delta is not used ... yet?
-        # delta = 1.0 / self.tr.stats.sampling_rate
-        AIC = np.zeros(npts)
+        data = self.tr.data;
+        # delta = 1.0/self.tr.stats.sampling_rate
 
-        # reverse indexing to remove the nan, np.std(data[:0]) is nan,
-        # starting index need to be npts - 2, if data array only has 1 sample,
-        # the std is 0, the log10(0) is inf
-        for k in range(npts - 2, 0, -1):
+        if (not optimized):
+            AIC = np.zeros(npts)
 
-            a = k * np.log10(np.std(data[:k]) ** 2) + (npts - k - 1) * np.log10(
-                np.std(data[k:]) ** 2
-            )
+            # reverse indexing to remove the nan, np.std(data[:0]) is nan, starting index need to
+            # be npts-2, if data array only has 1 sample, the std is 0, the log10(0) is inf
+            for k in range(npts - 2, 0, -1):
 
-            # print a,np.log10(np.std(data[k:]))
-            if a == -float("inf"):
-                a = AIC[k + 1]
-            AIC[k] = a
-        AIC[0] = AIC[1]
-        AIC[-1] = AIC[-2]
-        AIC = np.array(AIC)
+                a = k * np.log10(np.std(data[:k]) ** 2) + (npts - k - 1) * np.log10(np.std(data[k:]) ** 2)
 
-        AIC_deriv = []
-        for i in range(npts - 1):
-            b = np.abs(AIC[i + 1] - AIC[i])
-            AIC_deriv.append(b)
+                # print a,np.log10(np.std(data[k:]))
+                if a == -float('inf'):
+                    a = AIC[k + 1]
+                AIC[k] = a
+            AIC[0] = AIC[1]
+            AIC[-1] = AIC[-2]
+            AIC = np.array(AIC)
 
-        AIC_deriv.insert(0, AIC_deriv[0])
-        AIC_deriv = np.array(AIC_deriv)
+            AIC_deriv = []
+            for i in range(npts - 1):
+                b = np.abs(AIC[i + 1] - AIC[i])
+                AIC_deriv.append(b)
 
-        return AIC, AIC_deriv
+            AIC_deriv.insert(0, AIC_deriv[0])
+            AIC_deriv = np.array(AIC_deriv)
+
+            # print AIC, AIC_deriv
+            # print np.sum(AIC), np.sum(AIC_deriv)
+            return AIC, AIC_deriv
+
+        else:
+            result = cf_aicd_stats.stats(data, np.zeros(npts), np.zeros(npts), npts)
+            # print np.sum(result[0]), np.sum(result[1])
+            return result
+        # end if
+    # end func
+# end class
