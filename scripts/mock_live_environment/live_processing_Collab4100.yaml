@@ -94,10 +94,7 @@ filters:
 # Full list of each channel in the Vibbox binary. Order written.
 vibbox:
   seeds:
-    [ 'CB.TS01..XDH', 'CB.TS03..XDH', 'CB.TS05..XDH', 'CB.TS07..XDH',
-      'CB.TS09..XDH', 'CB.TS11..XDH', 'CB.TS13..XDH', 'CB.TS15..XDH',
-      'CB.TS17..XDH', 'CB.TS19..XDH', 'CB.TS21..XDH', 'CB.TS23..XDH',
-      'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+    [ 'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
       'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
       'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
       'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
@@ -109,4 +106,7 @@ vibbox:
       'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
       'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
       'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
-      'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..' ]
+      'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+      'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+      'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+      'CB.PPS..', 'CB.CEnc..', 'CB.CMon..', 'CB.CTrig..' ]

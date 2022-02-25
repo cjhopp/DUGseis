@@ -39,9 +39,9 @@ util.setup_logging_to_file(
 logger = logging.getLogger(__name__)
 
 
-trigger_chans = ['CB.TS01..XDH', 'CB.TS03..XDH', 'CB.TS05..XDH', 'CB.TS07..XDH',
-                 'CB.TS09..XDH', 'CB.TS11..XDH', 'CB.TS13..XDH', 'CB.TS15..XDH',
-                 'CB.TS17..XDH', 'CB.TS19..XDH', 'CB.TS21..XDH', 'CB.TS23..XDH',
+trigger_chans = ['CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                 'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                 'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
                  'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
                  'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
                  'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
@@ -81,9 +81,9 @@ def launch_processing(project):
         print('Interval: {} {}'.format(interval_start, interval_end))
         st_all = project.waveforms.get_waveforms(
             channel_ids=[
-                'CB.TS01..XDH', 'CB.TS03..XDH', 'CB.TS05..XDH', 'CB.TS07..XDH',
-                'CB.TS09..XDH', 'CB.TS11..XDH', 'CB.TS13..XDH', 'CB.TS15..XDH',
-                'CB.TS17..XDH', 'CB.TS19..XDH', 'CB.TS21..XDH', 'CB.TS23..XDH',
+                'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
                 'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
                 'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
                 'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
