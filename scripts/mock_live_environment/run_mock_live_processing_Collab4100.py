@@ -39,26 +39,35 @@ util.setup_logging_to_file(
 logger = logging.getLogger(__name__)
 
 
-trigger_chans = ['SV.PDT1..XNZ', 'SV.PDB3..XNZ', 'SV.PDB4..XNZ', 'SV.PDB6..XNZ',
-                 'SV.PSB7..XNZ', 'SV.PSB9..XNZ', 'SV.PST10..XNZ', 'SV.PST12..XNZ',
-                 'SV.OB13..XNZ', 'SV.OB15..XNZ', 'SV.OT16..XNZ', 'SV.PDB01..XN1',
-                 'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1', 'SV.PDB05..XN1',
-                 'SV.PDB06..XN1', 'SV.PDB07..XN1', 'SV.PDB08..XN1',
-                 'SV.PDB09..XN1', 'SV.PDB10..XN1', 'SV.PDB11..XN1', 'SV.PDB12..XN1',
-                 'SV.OT01..XN1', 'SV.OT02..XN1', 'SV.OT03..XN1', 'SV.OT04..XN1',
-                 'SV.OT05..XN1', 'SV.OT06..XN1', 'SV.OT07..XN1', 'SV.OT08..XN1',
-                 'SV.OT09..XN1', 'SV.OT10..XN1', 'SV.OT11..XN1',
-                 'SV.CTrig..']
+trigger_chans = ['CB.TS01..XDH', 'CB.TS03..XDH', 'CB.TS05..XDH', 'CB.TS07..XDH',
+                 'CB.TS09..XDH', 'CB.TS11..XDH', 'CB.TS13..XDH', 'CB.TS15..XDH',
+                 'CB.TS17..XDH', 'CB.TS19..XDH', 'CB.TS21..XDH', 'CB.TS23..XDH',
+                 'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+                 'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+                 'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+                 'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                 'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+                 'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+                 'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+                 'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+                 'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                 'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+                 'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+                 'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
+                 'CB.CTrig..']
 
-mag_chans = ['SV.PDT1..XNZ', 'SV.PDT1..XNX', 'SV.PDT1..XNY', 'SV.PDB3..XNZ',
-             'SV.PDB3..XNX', 'SV.PDB3..XNY', 'SV.PDB4..XNZ', 'SV.PDB4..XNX',
-             'SV.PDB4..XNY', 'SV.PDB6..XNZ', 'SV.PDB6..XNX', 'SV.PDB6..XNY',
-             'SV.PSB7..XNZ', 'SV.PSB7..XNX', 'SV.PSB7..XNY', 'SV.PSB9..XNZ',
-             'SV.PSB9..XNX', 'SV.PSB9..XNY', 'SV.PST10..XNZ', 'SV.PST10..XNX',
-             'SV.PST10..XNY', 'SV.PST12..XNZ', 'SV.PST12..XNX', 'SV.PST12..XNY',
-             'SV.OB13..XNZ', 'SV.OB13..XNX', 'SV.OB13..XNY', 'SV.OB15..XNZ',
-             'SV.OB15..XNX', 'SV.OB15..XNY', 'SV.OT16..XNZ', 'SV.OT16..XNX',
-             'SV.OT16..XNY']
+mag_chans = ['CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+             'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+             'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+             'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+             'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+             'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+             'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+             'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+             'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+             'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+             'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+             'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ']
 
 def launch_processing(project):
     # Helper function to compute intervals over the project.
@@ -72,22 +81,22 @@ def launch_processing(project):
         print('Interval: {} {}'.format(interval_start, interval_end))
         st_all = project.waveforms.get_waveforms(
             channel_ids=[
-                'SV.PDB01..XN1', 'SV.PDB02..XN1', 'SV.PDB03..XN1', 'SV.PDB04..XN1',
-                'SV.PDB05..XN1', 'SV.PDB06..XN1', 'SV.PDB07..XN1', 'SV.PDB08..XN1',
-                'SV.PDB09..XN1', 'SV.PDB10..XN1', 'SV.PDB11..XN1', 'SV.PDB12..XN1',
-                'SV.OT01..XN1', 'SV.OT02..XN1', 'SV.OT03..XN1', 'SV.OT04..XN1',
-                'SV.OT05..XN1', 'SV.OT06..XN1', 'SV.OT07..XN1', 'SV.OT08..XN1',
-                'SV.OT09..XN1', 'SV.OT10..XN1', 'SV.OT11..XN1', 'SV.OT12..XN1',
-                'SV.PDT1..XNZ', 'SV.PDT1..XNX', 'SV.PDT1..XNY', 'SV.PDB3..XNZ',
-                'SV.PDB3..XNX', 'SV.PDB3..XNY', 'SV.PDB4..XNZ', 'SV.PDB4..XNX',
-                'SV.PDB4..XNY', 'SV.PDB6..XNZ', 'SV.PDB6..XNX', 'SV.PDB6..XNY',
-                'SV.PSB7..XNZ', 'SV.PSB7..XNX', 'SV.PSB7..XNY', 'SV.PSB9..XNZ',
-                'SV.PSB9..XNX', 'SV.PSB9..XNY', 'SV.PST10..XNZ', 'SV.PST10..XNX',
-                'SV.PST10..XNY', 'SV.PST12..XNZ', 'SV.PST12..XNX', 'SV.PST12..XNY',
-                'SV.OB13..XNZ', 'SV.OB13..XNX', 'SV.OB13..XNY', 'SV.OB15..XNZ',
-                'SV.OB15..XNX', 'SV.OB15..XNY', 'SV.OT16..XNZ', 'SV.OT16..XNX',
-                'SV.OT16..XNY', 'SV.OT18..XNZ', 'SV.OT18..XNX', 'SV.OT18..XNY',
-                'SV.CMon..', 'SV.CTrig..', 'SV.CEnc..', 'SV.PPS..'],
+                'CB.TS01..XDH', 'CB.TS03..XDH', 'CB.TS05..XDH', 'CB.TS07..XDH',
+                'CB.TS09..XDH', 'CB.TS11..XDH', 'CB.TS13..XDH', 'CB.TS15..XDH',
+                'CB.TS17..XDH', 'CB.TS19..XDH', 'CB.TS21..XDH', 'CB.TS23..XDH',
+                'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+                'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+                'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+                'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+                'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+                'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+                'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+                'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+                'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+                'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
+                'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..' ],
             start_time=interval_start,
             end_time=interval_end,
         )
@@ -104,7 +113,7 @@ def launch_processing(project):
         detected_events = dug_trigger(
             st=st_triggering,
             # Helps with classification.
-            active_triggering_channel="SV.CTrig..",
+            active_triggering_channel="CB.CTrig..",
             minimum_time_between_events_in_seconds=0.0006,
             max_spread_electronic_interference_in_seconds=2e-5,
             # Passed on the coincidence trigger.
@@ -192,18 +201,18 @@ def launch_processing(project):
                 # global_to_local=project.global_to_local_coordinates,
                 # Vp=5900, Vs=3300, p=2900, inventory=project.inventory,
                 # plot=True)
-            try:
-                est_magnitude_energy(
-                    event=event, stream=st_mags,
-                    coordinates=project.cartesian_coordinates,
-                    global_to_local=project.global_to_local_coordinates,
-                    Vs=3300, p=2900, G=20, inventory=project.inventory,
-                    plot=True)
-            except ValueError as e:
-                logger.info(
-                    "Magnitude calculation failed "
-                    f"{event.origins[0].resource_id}"
-                )
+            # try:
+            #     est_magnitude_energy(
+            #         event=event, stream=st_mags,
+            #         coordinates=project.cartesian_coordinates,
+            #         global_to_local=project.global_to_local_coordinates,
+            #         Vs=3300, p=2900, G=20, inventory=project.inventory,
+            #         plot=True)
+            # except ValueError as e:
+            #     logger.info(
+            #         "Magnitude calculation failed "
+            #         f"{event.origins[0].resource_id}"
+            #     )
 
             # Write the classification as a comment.
             event.comments = [
@@ -225,7 +234,7 @@ def launch_processing(project):
         logger.info(f"Found {total_event_count} events.")
 
 
-with open("/home/chet/DUGseis/scripts/mock_live_environment/live_processing_Collab4850.yaml", "r") as fh:
+with open("/home/chet/DUGseis/scripts/mock_live_environment/live_processing_Collab4100.yaml", "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)
 
 all_folders = [
