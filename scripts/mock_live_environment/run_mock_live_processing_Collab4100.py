@@ -15,6 +15,15 @@ import obspy
 import tqdm
 import yaml
 
+import numpy as np
+
+from glob import glob
+
+# Despiking imports
+from eqcorrscan.utils.despike import template_remove
+from eqcorrscan.utils.correlate import CorrelationError
+from joblib import Parallel, delayed
+
 # Import from the DUGSeis library.
 from dug_seis.project.project import DUGSeisProject
 from dug_seis.waveform_handler.waveform_handler import FILENAME_REGEX
@@ -38,41 +47,71 @@ util.setup_logging_to_file(
 )
 logger = logging.getLogger(__name__)
 
+"""
+n.b. Bad channels in the Vibbox data (commented out in the lists below):
+
+AML2.XNZ,
+AMU1.XNY
+DML4.*
+DMU4.XNZ
+"""
 
 trigger_chans = ['CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
                  'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
                  'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
                  'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
-                 'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+                 'CB.AML2..XNY', #'CB.AML2..XNZ',
+                 'CB.AML3..XNX', 'CB.AML3..XNY',
                  'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
-                 'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                 'CB.AMU1..XNX', #'CB.AMU1..XNY',
+                 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
                  'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
                  'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
                  'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
                  'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
-                 'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                 'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
                  'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
                  'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
-                 'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
+                 'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ',
                  'CB.CTrig..']
 
 mag_chans = ['CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
-             'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+             'CB.AML2..XNY', #'CB.AML2..XNZ',
+             'CB.AML3..XNX', 'CB.AML3..XNY',
              'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
-             'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+             'CB.AMU1..XNX', #'CB.AMU1..XNY',
+             'CB.AMU1..XNZ', 'CB.AMU2..XNX',
              'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
              'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
              'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
              'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
-             'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+             'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
              'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
              'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
-             'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ']
+             'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ'
+             ]
+
+
+def despike(tr, temp_streams, cc_thresh):
+    """
+    Remove ERT spikes using template-based removal
+    :return:
+    """
+    new_tr = tr.copy()
+    for tst in temp_streams:
+        temp_tr = tst.select(id=tr.id)[0]
+        window = int(1.5 * (temp_tr.stats.delta * (temp_tr.stats.npts + 1)))
+        try:
+            template_remove(new_tr, temp_tr, cc_thresh, windowlength=window,
+                            interp_len=window)
+        except CorrelationError:
+            return new_tr
+    return new_tr
 
 def launch_processing(project):
     # Helper function to compute intervals over the project.
     intervals = util.compute_intervals(
-        project=project, interval_length_in_seconds=16, interval_overlap_in_seconds=0.1
+        project=project, interval_length_in_seconds=30, interval_overlap_in_seconds=0.1
     )
     total_event_count = 0
 
@@ -85,30 +124,45 @@ def launch_processing(project):
                 'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
                 'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
                 'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
-                'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+                'CB.AML2..XNY', #'CB.AML2..XNZ',
+                'CB.AML3..XNX', 'CB.AML3..XNY',
                 'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
-                'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                'CB.AMU1..XNX', #'CB.AMU1..XNY',
+                'CB.AMU1..XNZ', 'CB.AMU2..XNX',
                 'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
                 'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
                 'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
                 'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
-                'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
                 'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
                 'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
-                'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
-                'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..' ],
+                'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ',
+                'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..'],
             start_time=interval_start,
             end_time=interval_end,
         )
         # Separate triggering and magnitude traces
         st_triggering = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
-        st_triggering.detrend('linear')
+        # Depike triggering trace
+        cc_thresh = 0.7
+        spike_streams = [obspy.read(s) for s in glob('{}/*.ms'.format(
+            project.config['paths']['spike_mseed']))]
+        results = Parallel(n_jobs=15, verbose=10)(
+            delayed(despike)(tr, spike_streams, cc_thresh)
+            for tr in st_triggering)
+        st_triggering = obspy.Stream(traces=[r for r in results])
+        # Preprocess
+        try:
+            st_triggering.detrend('linear')
+        except NotImplementedError:  # Case of masked arrays...interpolation?
+            for tr in st_triggering:
+                if isinstance(tr.data, np.ma.masked_array):
+                    tr.data = tr.data.filled()
         st_triggering.detrend('demean')
         st_triggering.filter('highpass', freq=2000)
         st_mags = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
-
         # Standard DUGSeis trigger.
         detected_events = dug_trigger(
             st=st_triggering,
@@ -121,7 +175,7 @@ def launch_processing(project):
                 "trigger_type": "recstalta",
                 "thr_on": 6.0,
                 "thr_off": 2.0,
-                "thr_coincidence_sum": 6,
+                "thr_coincidence_sum": 10,
                 # The time windows are given in seconds.
                 "sta": 0.0007,
                 "lta": 0.007,
@@ -149,6 +203,7 @@ def launch_processing(project):
                 endtime=event_candidate["time"] + 1e-2).copy()
             # Remove the active trigger before picking
             st_event.traces.remove(st_event.select(station='CTrig')[0])
+            st_event = st_event.select(channel='XNX')
             st_event.detrend('demean')
             st_event.detrend('linear')
             picks = dug_picker(
@@ -157,7 +212,7 @@ def launch_processing(project):
                     picker_opts={
                         # Here given as samples.
                         "bandpass_f_min": 2000,
-                        "bandpass_f_max": 15000,
+                        "bandpass_f_max": 49000,
                         "t_ma": 0.0003,
                         "nsigma": 4,
                         "t_up": 0.00078,
@@ -180,7 +235,7 @@ def launch_processing(project):
             event = locate_in_homogeneous_background_medium(
                 picks=picks,
                 coordinates=project.cartesian_coordinates,
-                velocity=5900.0,
+                velocity=6900.0,
                 damping=0.01,
                 local_to_global_coordinates=project.local_to_global_coordinates,
             )

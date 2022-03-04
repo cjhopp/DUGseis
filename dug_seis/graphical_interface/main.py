@@ -178,6 +178,9 @@ class MainWindow(QtWidgets.QMainWindow):
         event_times = [c["origin_time"] for c in self.event_summary]
         assert len(event_coordinates) == len(event_times)
         self.three_d_view.update_events(event_coordinates, event_times)
+        # # Save image of widget to file
+        # self.ui.stationViewGLWidget.readQImage().save('3D_view.png',
+        #                                               quality=100)
 
     def _setup(self):
         """

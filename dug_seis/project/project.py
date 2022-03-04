@@ -105,6 +105,7 @@ _CONFIG_FILE_SCHEMA = schema.Schema(
         "paths": {
             "asdf_folders": [schema.Use(_directory_exists)],
             "stationxml_folders": [schema.Use(_directory_exists)],
+            'spike_mseed': schema.Use(_directory_exists),
             "cache_folder": schema.Use(_directory_exists),
             "database": str,
         },

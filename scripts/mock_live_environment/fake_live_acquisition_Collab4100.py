@@ -31,7 +31,7 @@ from dug_seis.waveform_handler.waveform_handler import FILENAME_REGEX
 ###########################################################################
 # Settings
 DATA_FOLDER = pathlib.Path(
-    r'/media/chet/data/chet-collab/wavs/4100/vbox_test'
+    r'/media/chet/data/chet-collab/wavs/4100/vbox_test/cassm'
 )
 FAKE_ACQUISITION_FOLDER = pathlib.Path(r"/home/chet/fake_live_data/asdf")
 INITIAL_DELAY_IN_SECONDS = 10.0

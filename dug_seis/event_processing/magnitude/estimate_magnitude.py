@@ -330,58 +330,8 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     return
 
 
-def est_magnitude_amplitude(event, stream, coordinates, global_to_local, Vs, p, G,
-                            inventory, plot=False):
+def est_magnitude_amplitude(event, stream, coordinates, global_to_local):
     """
-    Apply a magnitude estimation estimates the energy in the acceleration
-    arrival of the S wave. Follows Kwiatek et al work from Aspo
-
-    :param event: Event object with origin and picks
-    :param stream: Stream object containing XYZ for all accelerometers with picks
-    :param coordinates: Station coordinates
-    :param global_to_local: Func for converting global to cartesian coords
-    :param Vs: S-wave velocity (m/s)
-    :param p: Density (km/m**3)
-    :param plot: Debug plotting flag
-    :return:
+    Will fill this is if there's time later (and if it's needed)
     """
-    o = event.preferred_origin()
-    # Remove response for stream
-    stream.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
-    stream.detrend('linear')
-    stream.detrend('simple')
-    stream.resample(sampling_rate=40000.)
-    stream.remove_response(inventory=inventory, output="ACC",
-                            water_level=600, plot=False,
-                            pre_filt=[20, 30, 40000, 50000])
-    x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
-                              depth=o.depth)
-    M0s = []
-    for pk in event.picks:
-        sx, sy, sz = coordinates[pk.waveform_id.id]
-        distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
-        tt_S = distance / Vs
-        st = stream.select(station=pk.waveform_id.station_code).copy()
-        st.filter('bandpass', freq_min=2000., freq_max=15000)
-        if len(st) == 0:
-            continue  # Pick from hydrophone
-        st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.005).copy()
-        st_S.integrate().detrend('linear')  # VEL
-        if plot:
-            st_S.plot()
-        E_Ss = []
-        for tr in st_S:
-            # Follow
-            V_spec = do_spectrum(tr)
-            int_V = np.trapz(V_spec.data**2)
-            E_acc = 8 * np.pi * p * Vs * distance * int_V
-            E_Ss.append(E_acc)
-            if plot:
-                print(int_V)
-        M0s.append(2 * G * np.mean(E_Ss) * 1e3)
-        print(M0s)
-    Mw = (0.6667 * np.log10(np.mean(M0s))) - 6.07
-    magnitude = Magnitude(mag=Mw, type='Mw', origin_id=o.resource_id)
-    event.magnitudes.append(magnitude)
-    event.preferred_magnitude_id = event.magnitudes[-1].resource_id
     return

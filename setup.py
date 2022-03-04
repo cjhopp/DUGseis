@@ -41,6 +41,8 @@ _install_requires = [
     "scipy",
     "tqdm",
     "cython",
+    "eqcorrscan",
+    "joblib",
 ]
 
 setup(
