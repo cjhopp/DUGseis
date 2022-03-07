@@ -371,6 +371,7 @@ class AICDSummary():
       ax.text((picks[i]-self.tr.stats.starttime), 0.5 * np.max(self.tr.data),
               '%s' % (self.pol[i]), color='red')
     ax2.legend(loc='upper right', shadow=True, fancybox=True)
+    ax.set_title(scnl)
     plt.tight_layout()
     if filename:
       plt.savefig(filename)

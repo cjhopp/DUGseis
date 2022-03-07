@@ -20,7 +20,9 @@ import numpy as np
 from glob import glob
 
 # Despiking imports
-from eqcorrscan.utils.despike import template_remove
+from eqcorrscan.utils.timer import Timer
+from eqcorrscan.utils.correlate import get_array_xcorr
+from eqcorrscan.utils.findpeaks import find_peaks2_short
 from eqcorrscan.utils.correlate import CorrelationError
 from joblib import Parallel, delayed
 
@@ -91,6 +93,72 @@ mag_chans = ['CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
              'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ'
              ]
 
+def _interp_gap(data, peak_loc, interp_len, mad):
+    """
+    Internal function for filling gap with linear interpolation
+
+    :type data: numpy.ndarray
+    :param data: data to remove peak in
+    :type peak_loc: int
+    :param peak_loc: peak location position
+    :type interp_len: int
+    :param interp_len: window to interpolate
+
+    :returns: Trace works in-place
+    :rtype: :class:`obspy.core.trace.Trace`
+    """
+    start_loc = peak_loc - int(0.5 * interp_len)
+    end_loc = peak_loc + int(0.5 * interp_len)
+    if start_loc < 0:
+        start_loc = 0
+    if end_loc > len(data) - 1:
+        end_loc = len(data) - 1
+    fill = np.linspace(data[start_loc], data[end_loc], end_loc - start_loc)
+    fill += np.random.normal(0, mad, fill.shape)
+    data[start_loc:end_loc] = fill
+    return data
+
+
+def template_remove(tr, template, cc_thresh, windowlength, interp_len):
+    """
+    Looks for instances of template in the trace and removes the matches.
+
+    :type tr: obspy.core.trace.Trace
+    :param tr: Trace to remove spikes from.
+    :type template: osbpy.core.trace.Trace
+    :param template: Spike template to look for in data.
+    :type cc_thresh: float
+    :param cc_thresh: Cross-correlation threshold (-1 - 1).
+    :type windowlength: float
+    :param windowlength: Length of window to look for spikes in in seconds.
+    :type interp_len: float
+    :param interp_len: Window length to remove and fill in seconds.
+
+    :returns: tr, works in place.
+    :rtype: :class:`obspy.core.trace.Trace`
+    """
+    _interp_len = int(tr.stats.sampling_rate * interp_len)
+    if _interp_len < len(template.data):
+        logger.warning('Interp_len is less than the length of the template, '
+                       'will used the length of the template!')
+        _interp_len = len(template.data)
+    if isinstance(template, obspy.Trace):
+        template = np.array([template.data])
+    mad = np.median(np.abs(tr.data - np.mean(tr.data)))
+    with Timer() as t:
+        normxcorr = get_array_xcorr("fftw")
+        cc, _ = normxcorr(stream=tr.data.astype(np.float32),
+                          templates=template.astype(np.float32), pads=[0])
+        peaks = find_peaks2_short(
+            arr=cc.flatten(), thresh=cc_thresh,
+            trig_int=windowlength * tr.stats.sampling_rate)
+        for peak in peaks:
+            tr.data = _interp_gap(
+                data=tr.data, peak_loc=peak[1] + int(0.5 * _interp_len),
+                interp_len=_interp_len, mad=mad)
+    logger.info("Despiking took: {0:.4f} s".format(t.secs))
+    return tr
+
 
 def despike(tr, temp_streams, cc_thresh):
     """
@@ -107,6 +175,7 @@ def despike(tr, temp_streams, cc_thresh):
         except CorrelationError:
             return new_tr
     return new_tr
+
 
 def launch_processing(project):
     # Helper function to compute intervals over the project.
@@ -146,12 +215,14 @@ def launch_processing(project):
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
         # Depike triggering trace
         cc_thresh = 0.7
-        spike_streams = [obspy.read(s) for s in glob('{}/*.ms'.format(
-            project.config['paths']['spike_mseed']))]
+        templates = glob('{}/*.ms'.format(project.config['paths']['spike_mseed']))
+        templates.sort()
+        spike_streams = [obspy.read(s) for s in templates]
         results = Parallel(n_jobs=15, verbose=10)(
             delayed(despike)(tr, spike_streams, cc_thresh)
             for tr in st_triggering)
         st_triggering = obspy.Stream(traces=[r for r in results])
+        st_triggering.select(station='AML1').plot(method='full')
         # Preprocess
         try:
             st_triggering.detrend('linear')
@@ -182,6 +253,7 @@ def launch_processing(project):
                 "trigger_off_extension": 0.0,
                 "details": True,
             },
+            plot='.',
         )
 
         logger.info(
@@ -221,7 +293,7 @@ def launch_processing(project):
                         "pol_len": 50,
                         "pol_coeff": 10,
                         "uncert_coeff": 3,
-                        "plot": False
+                        "plot": True
                     },
                 )
 
