@@ -59,7 +59,8 @@ def vibbox_read(fname, seeds, debug=0):
         print('Number of channels in config file not equal to number in data')
         return
     A = A / 2**32  # Norm to 32-bit
-    A = (2 * VOLTAGE_RANGE * A) - VOLTAGE_RANGE  # Demean
+    A *= (2 * VOLTAGE_RANGE)
+    A -= VOLTAGE_RANGE  # Demean
     path, fname = os.path.split(fname)
     try:
         # Use derivative of PPS signal to find pulse start

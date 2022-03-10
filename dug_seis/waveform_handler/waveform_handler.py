@@ -196,6 +196,7 @@ class WaveformHandler:
         for name, info in tqdm.tqdm(
             self._files.items(), desc="Creating/updating cache"
         ):
+
             single_file_cache = self._cache_single_file(filename=name, info=info)
             caches.append(single_file_cache)
             filename_receivers_map[name] = set(single_file_cache["receivers"])
@@ -370,7 +371,7 @@ class WaveformHandler:
 
             # Filter the times.
             starttime = obspy.UTCDateTime(*[int(i) for i in g])
-            endtime = starttime + 32.  # Temporary hack for 32s VBox
+            endtime = starttime + 33.  # Temporary hack for 32s VBox
             if starttime > self._end_time or endtime < self._start_time:
                 continue
 
@@ -535,7 +536,7 @@ class WaveformHandler:
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
-            breakpoint()
+            return st
         for tr in st:
             tr.stats.delta = list(deltas)[0]
         st.merge()
