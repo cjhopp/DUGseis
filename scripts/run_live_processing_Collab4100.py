@@ -9,7 +9,10 @@ import copy
 import logging
 import pathlib
 import re
+import gc
 import time
+import psutil
+import tracemalloc
 
 import obspy
 import tqdm
@@ -185,6 +188,10 @@ def launch_processing(project):
     )
     total_event_count = 0
 
+    templates = glob('{}/*.ms'.format(project.config['paths']['spike_mseed']))
+    templates.sort()
+    spike_streams = [obspy.read(s) for s in templates]
+
     for interval_start, interval_end in tqdm.tqdm(intervals):
         # Run the trigger only on a few waveforms.
         print('Interval: {} {}'.format(interval_start, interval_end))
@@ -215,20 +222,29 @@ def launch_processing(project):
             print('No waveform data found')
             continue
         # Separate triggering and magnitude traces
+        st_mags = obspy.Stream(
+            traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         st_triggering = obspy.Stream(
-            traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
+            traces=[tr for tr in st_all if tr.id in trigger_chans])
+        del st_all
         # print('Demasking')
         for tr in st_triggering:
             if isinstance(tr.data, np.ma.masked_array):
                 tr.data = tr.data.filled(fill_value=tr.data.mean())
         # Depike triggering trace
         cc_thresh = 0.7
-        templates = glob('{}/*.ms'.format(project.config['paths']['spike_mseed']))
-        templates.sort()
-        spike_streams = [obspy.read(s) for s in templates]
+        # Track parallel processes and eliminate those spawned during despike on completion
+        current_process = psutil.Process()
+        subproc_before = set([p.pid for p in current_process.children(recursive=True)])
         results = Parallel(n_jobs=15, verbose=10)(
             delayed(despike)(tr, spike_streams, cc_thresh)
             for tr in st_triggering)
+        # Kill remaining processes
+        subproc_after = set([p.pid for p in current_process.children(recursive=True)])
+        for subproc in subproc_after - subproc_before:
+            print('Killing process with pid {}'.format(subproc))
+            psutil.Process(subproc).terminate()
+
         st_triggering = obspy.Stream(traces=[r for r in results])
         # Preprocess
         print('Preprocessing')
@@ -240,8 +256,6 @@ def launch_processing(project):
         st_triggering.detrend('demean')
         print('Filtering')
         st_triggering.filter('highpass', freq=2000)
-        st_mags = obspy.Stream(
-            traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         # Standard DUGSeis trigger.
         detected_events = dug_trigger(
             st=st_triggering,
@@ -261,6 +275,7 @@ def launch_processing(project):
                 "trigger_off_extension": 0.0,
                 "details": True,
             },
+            plot=False,
         )
 
         logger.info(
@@ -275,6 +290,9 @@ def launch_processing(project):
         added_event_count = 0
 
         for event_candidate in detected_events:
+            # Skip CASSM and electronic noise
+            if event_candidate['classification'] in ['electronic', 'active']:
+                continue
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
             st_event = st_triggering.slice(
@@ -305,7 +323,7 @@ def launch_processing(project):
                 )
 
             # We want at least three picks, otherwise we don't designate it an event.
-            if len(picks) < 3 or event_candidate['classification'] == 'electronic':
+            if len(picks) < 3:
                 # Optionally save the picks to the database as unassociated picks.
                 # if picks:
                 #    project.db.add_object(picks)
@@ -354,10 +372,14 @@ def launch_processing(project):
                     text=f"Classification: {event_candidate['classification']}"
                 )
             ]
+            snapshot = tracemalloc.take_snapshot()
 
+            for stat in snapshot.statistics("lineno"):
+                print(stat)
             # Add the event to the project.
             added_event_count += 1
             project.db.add_object(event)
+            gc.collect()
         logger.info(
             f"Successfully located {added_event_count} of "
             f"{len(detected_events)} event(s)."
@@ -367,6 +389,7 @@ def launch_processing(project):
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
+tracemalloc.start()
 
 with open("/home/sigmav/DUGseis/scripts/live_processing_Collab4100_3-9-22.yaml", "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)

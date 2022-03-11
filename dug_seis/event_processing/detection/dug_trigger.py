@@ -108,7 +108,6 @@ def dug_trigger(
 
 def plot_triggers(triggers, st, cft_stream, params, outdir):
     """Helper to plot triggers, traces and characteristic funcs"""
-    print(triggers)
     for trig in triggers:
         seeds = trig['trace_ids']
         # Clip around trigger time

@@ -11,18 +11,18 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/mnt/synology/VBoxData'
+    - '/mnt/data2/'
   stationxml_folders:
-    - '/data1/chet-collab/stations/4100/single-channel-inventories'
-  spike_mseed: '/data1/chet-collab/wavs/ERT_spikes'
-  database: 'sqlite:///data1/Collab_live_data/db.sqlite'
-  cache_folder: '/data1/Collab_live_data/cache'
+    - 'chet-collab/single-channel-inventories'
+  spike_mseed: 'chet-collab/wavs/ERT_spikes'
+  database: 'sqlite://Collab_live_data/db.sqlite'
+  cache_folder: 'Collab_live_data/cache'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-3-8T22:50:00.000Z
-  end_time: 2022-3-8T23:11:59.999Z
+  start_time: 2022-3-10T22:50:00.000Z
+  end_time: 2022-6-30T23:11:59.999Z
 
 graphical_interface:
   classifications:
