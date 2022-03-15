@@ -163,7 +163,7 @@ class WaveformHandler:
         """
         return self._cache["cache_dt_ns"]
 
-    @functools.lru_cache(maxsize=20)
+    @functools.lru_cache(maxsize=5)
     def _get_open_vibbox_file(self, filename: pathlib.Path) -> obspy.Stream:
         """
         Get an open ASDF file.

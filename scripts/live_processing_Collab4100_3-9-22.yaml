@@ -11,7 +11,7 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/mnt/data2/'
+    - '/mnt/QNAP1/VBoxData/'
   stationxml_folders:
     - 'chet-collab/single-channel-inventories'
   spike_mseed: 'chet-collab/wavs/ERT_spikes'
@@ -21,8 +21,8 @@ paths:
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-3-10T22:50:00.000Z
-  end_time: 2022-6-30T23:11:59.999Z
+  start_time: 2022-3-11T19:00:00.000Z
+  end_time: 2022-3-11T19:45:59.999Z
 
 graphical_interface:
   classifications:

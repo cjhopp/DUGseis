@@ -96,7 +96,7 @@ mag_chans = ['CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
              'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ'
              ]
 
-def _interp_gap(data, peak_loc, interp_len, mad):
+def _interp_gap(data, peak_loc, interp_len, mad, mean):
     """
     Internal function for filling gap with linear interpolation
 
@@ -106,6 +106,8 @@ def _interp_gap(data, peak_loc, interp_len, mad):
     :param peak_loc: peak location position
     :type interp_len: int
     :param interp_len: window to interpolate
+    :param mad: MAD of trace
+    :param mean: mean of trace
 
     :returns: Trace works in-place
     :rtype: :class:`obspy.core.trace.Trace`
@@ -116,13 +118,15 @@ def _interp_gap(data, peak_loc, interp_len, mad):
         start_loc = 0
     if end_loc > len(data) - 1:
         end_loc = len(data) - 1
+    # fill = np.ones(end_loc - start_loc) * ((data[end_loc] + data[start_loc]) / 2)
     fill = np.linspace(data[start_loc], data[end_loc], end_loc - start_loc)
-    # fill += np.random.normal(0, mad, fill.shape)
+    # Fill with noise
+    fill += np.random.normal(0, mad, fill.shape)
     data[start_loc:end_loc] = fill
     return data
 
 
-def template_remove(tr, template, cc_thresh, windowlength, interp_len):
+def template_remove(tr, template, cc_thresh, windowlength, interp_len, mad, mean):
     """
     Looks for instances of template in the trace and removes the matches.
 
@@ -136,6 +140,8 @@ def template_remove(tr, template, cc_thresh, windowlength, interp_len):
     :param windowlength: Length of window to look for spikes in in seconds.
     :type interp_len: float
     :param interp_len: Window length to remove and fill in seconds.
+    :param mad: Median absolute deviation of the trace
+    :param mean: Mean of trace
 
     :returns: tr, works in place.
     :rtype: :class:`obspy.core.trace.Trace`
@@ -147,7 +153,6 @@ def template_remove(tr, template, cc_thresh, windowlength, interp_len):
         _interp_len = len(template.data)
     if isinstance(template, obspy.Trace):
         template = np.array([template.data])
-    mad = np.median(np.abs(tr.data - np.mean(tr.data)))
     with Timer() as t:
         normxcorr = get_array_xcorr("fftw")
         cc, _ = normxcorr(stream=tr.data.astype(np.float32),
@@ -158,7 +163,7 @@ def template_remove(tr, template, cc_thresh, windowlength, interp_len):
         for peak in peaks:
             tr.data = _interp_gap(
                 data=tr.data, peak_loc=peak[1] + int(0.5 * _interp_len),
-                interp_len=_interp_len, mad=mad)
+                interp_len=_interp_len, mad=mad, mean=mean)
     logger.info("Despiking took: {0:.4f} s".format(t.secs))
     return tr
 
@@ -168,14 +173,15 @@ def despike(tr, temp_streams, cc_thresh):
     Remove ERT spikes using template-based removal
     :return:
     """
-    print(tr.id)
     new_tr = tr.copy()
+    mean = np.mean(tr.data)
+    mad = np.median(np.abs(tr.data - np.mean(tr.data)))
     for tst in temp_streams:
         temp_tr = tst.select(id=tr.id)[0]
         window = int(1.5 * (temp_tr.stats.delta * (temp_tr.stats.npts + 1)))
         try:
             template_remove(new_tr, temp_tr, cc_thresh, windowlength=window,
-                            interp_len=window)
+                            interp_len=window, mad=mad, mean=mean)
         except CorrelationError:
             return new_tr
     return new_tr
@@ -225,26 +231,26 @@ def launch_processing(project):
         st_mags = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         st_triggering = obspy.Stream(
-            traces=[tr for tr in st_all if tr.id in trigger_chans])
+            traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
         del st_all
         # print('Demasking')
         for tr in st_triggering:
             if isinstance(tr.data, np.ma.masked_array):
                 tr.data = tr.data.filled(fill_value=tr.data.mean())
-        # Depike triggering trace
+        # # Depike triggering trace
         cc_thresh = 0.7
         # Track parallel processes and eliminate those spawned during despike on completion
-        current_process = psutil.Process()
-        subproc_before = set([p.pid for p in current_process.children(recursive=True)])
-        results = Parallel(n_jobs=15, verbose=10)(
+        # current_process = psutil.Process()
+        # subproc_before = set([p.pid for p in current_process.children(recursive=True)])
+        results = Parallel(n_jobs=15)(
             delayed(despike)(tr, spike_streams, cc_thresh)
             for tr in st_triggering)
-        # Kill remaining processes
-        subproc_after = set([p.pid for p in current_process.children(recursive=True)])
-        for subproc in subproc_after - subproc_before:
-            print('Killing process with pid {}'.format(subproc))
-            psutil.Process(subproc).terminate()
-
+        # # Kill remaining processes
+        # subproc_after = set([p.pid for p in current_process.children(recursive=True)])
+        # for subproc in subproc_after - subproc_before:
+        #     print('Killing process with pid {}'.format(subproc))
+        #     psutil.Process(subproc).terminate()
+        #
         st_triggering = obspy.Stream(traces=[r for r in results])
         # Preprocess
         print('Preprocessing')
@@ -372,14 +378,12 @@ def launch_processing(project):
                     text=f"Classification: {event_candidate['classification']}"
                 )
             ]
-            snapshot = tracemalloc.take_snapshot()
-
-            for stat in snapshot.statistics("lineno"):
-                print(stat)
             # Add the event to the project.
             added_event_count += 1
             project.db.add_object(event)
-            gc.collect()
+            del st_event
+        del st_triggering, st_mags
+        gc.collect()
         logger.info(
             f"Successfully located {added_event_count} of "
             f"{len(detected_events)} event(s)."
@@ -389,7 +393,6 @@ def launch_processing(project):
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
-tracemalloc.start()
 
 with open("/home/sigmav/DUGseis/scripts/live_processing_Collab4100_3-9-22.yaml", "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)
