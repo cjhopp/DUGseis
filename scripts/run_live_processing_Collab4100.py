@@ -278,9 +278,9 @@ def launch_processing(project):
                 "thr_off": 1.5,
                 "thr_coincidence_sum": 10,
                 # The time windows are given in seconds.
-                "sta": 0.0007,
-                "lta": 0.01,
-                "trigger_off_extension": 0.005,
+                "sta": 0.002,
+                "lta": 0.05,
+                "trigger_off_extension": 0.01,
                 "details": True,
             },
             plot='.',
