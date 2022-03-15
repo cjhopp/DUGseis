@@ -61,9 +61,9 @@ DML4.*
 DMU4.XNZ
 """
 
-trigger_chans = ['CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
-                 'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
-                 'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+trigger_chans = [#'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                 #'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                 #'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
                  'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
                  'CB.AML2..XNY', #'CB.AML2..XNZ',
                  'CB.AML3..XNX', 'CB.AML3..XNY',
@@ -272,16 +272,16 @@ def launch_processing(project):
             # Passed on the coincidence trigger.
             conincidence_trigger_opts={
                 "trigger_type": "recstalta",
-                "thr_on": 6.0,
-                "thr_off": 2.0,
+                "thr_on": 4.0,
+                "thr_off": 1.5,
                 "thr_coincidence_sum": 10,
                 # The time windows are given in seconds.
                 "sta": 0.0007,
-                "lta": 0.007,
-                "trigger_off_extension": 0.0,
+                "lta": 0.01,
+                "trigger_off_extension": 0.005,
                 "details": True,
             },
-            plot=False,
+            plot='.',
         )
 
         logger.info(
@@ -352,25 +352,25 @@ def launch_processing(project):
                 continue
 
             # Try magnitudes only for passive events
-            # if event_candidate['classification'] == 'passive':
-            # est_magnitude_spectra(
-                # event=event, stream=st_mags,
-                # coordinates=project.cartesian_coordinates,
-                # global_to_local=project.global_to_local_coordinates,
-                # Vp=5900, Vs=3300, p=2900, inventory=project.inventory,
-                # plot=True)
-            # try:
-            #     est_magnitude_energy(
-            #         event=event, stream=st_mags,
-            #         coordinates=project.cartesian_coordinates,
-            #         global_to_local=project.global_to_local_coordinates,
-            #         Vs=3300, p=2900, G=20, inventory=project.inventory,
-            #         plot=True)
-            # except ValueError as e:
-            #     logger.info(
-            #         "Magnitude calculation failed "
-            #         f"{event.origins[0].resource_id}"
-            #     )
+            if event_candidate['classification'] == 'passive':
+                # est_magnitude_spectra(
+                    # event=event, stream=st_mags,
+                    # coordinates=project.cartesian_coordinates,
+                    # global_to_local=project.global_to_local_coordinates,
+                    # Vp=5900, Vs=3300, p=2900, inventory=project.inventory,
+                    # plot=True)
+                try:
+                    est_magnitude_energy(
+                        event=event, stream=st_mags,
+                        coordinates=project.cartesian_coordinates,
+                        global_to_local=project.global_to_local_coordinates,
+                        Vs=3700, p=3050, G=40, inventory=project.inventory,
+                        plot=True)
+                except ValueError as e:
+                    logger.info(
+                        "Magnitude calculation failed "
+                        f"{event.origins[0].resource_id}"
+                    )
 
             # Write the classification as a comment.
             event.comments = [
