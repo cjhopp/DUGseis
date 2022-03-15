@@ -302,14 +302,14 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
         print('Distance {}'.format(distance))
         tt_S = distance / Vs
+        s_time = o.time + tt_S
         st = stream.select(station=pk.waveform_id.station_code).copy()
-        # st.filter('highpass', freq=2000.)
         if len(st) == 0:
             continue  # Pick from hydrophone
         st_noise = st.slice(starttime=pk.time - .1,
                             endtime=pk.time - 0.01).copy()
         st_noise.integrate().detrend('linear')  # VEL
-        st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.002).copy()
+        st_S = st.slice(starttime=s_time, endtime=s_time + 0.016).copy()
         st_S.integrate().detrend('linear')  # VEL
         if plot:
             st_S.plot()
