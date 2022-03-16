@@ -355,18 +355,17 @@ def launch_processing(project):
 
             # Try magnitudes only for passive events
             if event_candidate['classification'] == 'passive':
-                try:
-                    est_magnitude_energy(
-                        event=event, stream=st_mags,
-                        coordinates=project.cartesian_coordinates,
-                        global_to_local=project.global_to_local_coordinates,
-                        Vs=3700, p=3050, G=40, inventory=project.inventory,
-                        plot=True)
-                except ValueError as e:
-                    logger.info(
-                        "Magnitude calculation failed "
-                        f"{event.origins[0].resource_id}"
-                    )
+                est_magnitude_energy(
+                    event=event, stream=st_mags,
+                    coordinates=project.cartesian_coordinates,
+                    global_to_local=project.global_to_local_coordinates,
+                    Vs=3700, p=3050, G=40, inventory=project.inventory,
+                    plot=True)
+                # except ValueError as e:
+                #     logger.info(
+                #         "Magnitude calculation failed "
+                #         f"{event.origins[0].resource_id}"
+                #     )
 
             # Write the classification as a comment.
             event.comments = [
