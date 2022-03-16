@@ -306,15 +306,18 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         st.filter(type='highpass', freq=2000.)
         st.integrate().detrend('linear')
         if len(st) == 0:
+            print('No traces for {}')
             continue  # Pick from hydrophone
         st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
         E_Ss = []
         for tr in st_S:
+            Etr = tr.copy()
+            Etr.data = Etr.data**2
             V_spec = do_spectrum(tr)
             freqs = V_spec.get_freq()
             band_ints = np.where(freqs > 2000.)
             int_f = freqs[band_ints]
-            int_V = np.trapz(V_spec.data[band_ints]**2, x=int_f)
+            int_V = np.trapz(V_spec.data[band_ints], x=int_f)
             E_acc = 8 * np.pi * p * Vs * distance * int_V
             E_Ss.append(E_acc)
             if plot:
