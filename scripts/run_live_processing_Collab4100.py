@@ -269,14 +269,14 @@ def launch_processing(project):
             st=st_triggering,
             # Helps with classification.
             active_triggering_channel="CB.CTrig..",
-            minimum_time_between_events_in_seconds=0.0006,
+            minimum_time_between_events_in_seconds=0.02,
             max_spread_electronic_interference_in_seconds=2e-5,
             # Passed on the coincidence trigger.
             conincidence_trigger_opts={
                 "trigger_type": "recstalta",
                 "thr_on": 4.0,
                 "thr_off": 1.5,
-                "thr_coincidence_sum": 10,
+                "thr_coincidence_sum": 6,
                 # The time windows are given in seconds.
                 "sta": 0.002,
                 "lta": 0.05,
