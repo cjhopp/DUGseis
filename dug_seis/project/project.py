@@ -108,6 +108,8 @@ _CONFIG_FILE_SCHEMA = schema.Schema(
             'spike_mseed': schema.Use(_directory_exists),
             "cache_folder": schema.Use(_directory_exists),
             "database": str,
+            "out_wav_folder": str,
+            "out_catalog_folder": str,
         },
         "temporal_range": {
             # Any valid time string or number or what not should work.

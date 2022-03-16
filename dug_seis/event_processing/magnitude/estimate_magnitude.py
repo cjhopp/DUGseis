@@ -316,7 +316,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
             V_spec = do_spectrum(tr)
             freqs = V_spec.get_freq()
             # Kwiatec & BenZion formulation
-            Espec = (V_spec.data * np.exp(np.pi * freqs * distance / Vs / Q))**2
+            Espec = (V_spec.data * np.exp((np.pi * freqs * distance) / (Vs * Q)))**2
             # Integrate over passband
             band_ints = np.where(freqs > 2000.)
             int_f = freqs[band_ints]

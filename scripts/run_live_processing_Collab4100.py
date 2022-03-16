@@ -234,8 +234,6 @@ def launch_processing(project):
             traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         st_triggering = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
-        del st_all
-        # print('Demasking')
         for tr in st_triggering:
             if isinstance(tr.data, np.ma.masked_array):
                 tr.data = tr.data.filled(fill_value=tr.data.mean())
@@ -358,17 +356,19 @@ def launch_processing(project):
 
             # Try magnitudes only for passive events
             if event_candidate['classification'] == 'passive':
+                # Write waveform snippet to file
+                o = event.preferred_origin()
+                write_st = st_all.slice(starttime=o.time - 0.05,
+                                        endtime=o.time + 0.1)
+                write_st.write('{}/{}.ms'.format(
+                    project.config['paths']['spike_mseed'],
+                    event.resource_id.id), format='MSEED')
                 est_magnitude_energy(
                     event=event, stream=st_mags,
                     coordinates=project.cartesian_coordinates,
                     global_to_local=project.global_to_local_coordinates,
                     Vs=3700, p=3050, G=40, inventory=project.inventory,
-                    Q=250, Rc=0.63, plot=True)
-                # except ValueError as e:
-                #     logger.info(
-                #         "Magnitude calculation failed "
-                #         f"{event.origins[0].resource_id}"
-                #     )
+                    Q=210, Rc=0.63, plot=True)
 
             # Write the classification as a comment.
             event.comments = [
@@ -387,7 +387,8 @@ def launch_processing(project):
             f"{len(detected_events)} event(s)."
         )
         total_event_count += added_event_count
-
+        # Dump catalog to file
+        project.db.dump_as_quakeml_files()
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
