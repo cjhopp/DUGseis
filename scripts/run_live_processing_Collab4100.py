@@ -363,7 +363,7 @@ def launch_processing(project):
                     coordinates=project.cartesian_coordinates,
                     global_to_local=project.global_to_local_coordinates,
                     Vs=3700, p=3050, G=40, inventory=project.inventory,
-                    plot=True)
+                    Q=250, Rc=0.63, plot=True)
                 # except ValueError as e:
                 #     logger.info(
                 #         "Magnitude calculation failed "
