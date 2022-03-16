@@ -239,6 +239,9 @@ def launch_processing(project):
         for tr in st_triggering:
             if isinstance(tr.data, np.ma.masked_array):
                 tr.data = tr.data.filled(fill_value=tr.data.mean())
+        for tr in st_mags:
+            if isinstance(tr.data, np.ma.masked_array):
+                tr.data = tr.data.filled(fill_value=tr.data.mean())
         # # Depike triggering trace
         cc_thresh = 0.7
         # Track parallel processes and eliminate those spawned during despike on completion
