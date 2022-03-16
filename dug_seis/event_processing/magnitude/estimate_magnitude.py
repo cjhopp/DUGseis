@@ -304,7 +304,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         print('Distance {}'.format(distance))
         tt_S = distance / Vs
         s_time = o.time + tt_S
-        st = str.select(station=pk.waveform_id.id).copy()
+        st = str.select(id=pk.waveform_id.id).copy()
         st.filter(type='highpass', freq=2000.)
         st.integrate().detrend('linear')
         if len(st) == 0:
