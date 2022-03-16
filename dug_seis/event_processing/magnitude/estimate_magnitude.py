@@ -295,7 +295,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
                         pre_filt=[20, 30, 40000, 50000])
     x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
                               depth=o.depth)
-    print(str.traces)
+    print([tr.id for tr in str])
     M0s = []
     for pk in event.picks:
         sx, sy, sz = coordinates[pk.waveform_id.id]
