@@ -285,7 +285,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     """
     o = event.preferred_origin()
     # Remove response for stream
-    stream.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
+    stream.copy().trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
     stream.detrend('linear')
     stream.detrend('simple')
     stream.resample(sampling_rate=40000.)
