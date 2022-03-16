@@ -312,8 +312,9 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         for tr in st_S:
             V_spec = do_spectrum(tr)
             freqs = V_spec.get_freq()
-            int_f = freqs[np.where(freqs > 2000.)]
-            int_V = np.trapz(V_spec.data**2, x=int_f)
+            band_ints = np.where(freqs > 2000.)
+            int_f = freqs[band_ints]
+            int_V = np.trapz(V_spec.data[band_ints]**2, x=int_f)
             E_acc = 8 * np.pi * p * Vs * distance * int_V
             E_Ss.append(E_acc)
             if plot:
