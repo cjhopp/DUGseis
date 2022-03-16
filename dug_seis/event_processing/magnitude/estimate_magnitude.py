@@ -306,7 +306,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         st.filter(type='highpass', freq=2000.)
         st.integrate().detrend('linear')
         if len(st) == 0:
-            print('No traces for {}')
+            print('No traces for {}'.format(pk.waveform_id.station_code))
             continue  # Pick from hydrophone
         st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
         E_Ss = []
