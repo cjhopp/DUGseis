@@ -385,7 +385,8 @@ def launch_processing(project):
         )
         total_event_count += added_event_count
         # Dump catalog to file
-        project.db.dump_as_quakeml_files()
+        project.db.dump_as_quakeml_files(
+            folder=project.config['paths']['out_catalog_folder'])
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
