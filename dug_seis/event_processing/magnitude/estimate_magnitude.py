@@ -304,15 +304,10 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         s_time = o.time + tt_S
         st = stream.select(station=pk.waveform_id.station_code).copy()
         st.filter(type='highpass', freq=2000.)
+        st.integrate().detrend('linear')
         if len(st) == 0:
             continue  # Pick from hydrophone
-        st_noise = st.slice(starttime=pk.time - .1,
-                            endtime=pk.time - 0.01).copy()
-        st_noise.integrate().detrend('linear')  # VEL
         st_S = st.slice(starttime=s_time, endtime=s_time + 0.01).copy()
-        st_S.integrate().detrend('linear')  # VEL
-        if plot:
-            st_S.plot()
         E_Ss = []
         for tr in st_S:
             V_spec = do_spectrum(tr)
