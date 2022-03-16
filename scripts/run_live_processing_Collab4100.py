@@ -355,12 +355,6 @@ def launch_processing(project):
 
             # Try magnitudes only for passive events
             if event_candidate['classification'] == 'passive':
-                # est_magnitude_spectra(
-                    # event=event, stream=st_mags,
-                    # coordinates=project.cartesian_coordinates,
-                    # global_to_local=project.global_to_local_coordinates,
-                    # Vp=5900, Vs=3300, p=2900, inventory=project.inventory,
-                    # plot=True)
                 try:
                     est_magnitude_energy(
                         event=event, stream=st_mags,

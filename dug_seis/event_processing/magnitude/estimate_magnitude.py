@@ -307,15 +307,17 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         st.integrate().detrend('linear')
         if len(st) == 0:
             continue  # Pick from hydrophone
-        st_S = st.slice(starttime=s_time, endtime=s_time + 0.01).copy()
+        st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
         E_Ss = []
         for tr in st_S:
             V_spec = do_spectrum(tr)
-            int_V = np.trapz(V_spec.data**2, x=V_spec.get_freq())
+            freqs = V_spec.get_freq()
+            int_f = freqs[np.where(freqs > 2000.)]
+            int_V = np.trapz(V_spec.data**2, x=int_f)
             E_acc = 8 * np.pi * p * Vs * distance * int_V
             E_Ss.append(E_acc)
             if plot:
-                plot_magnitude_calc(st, st_S, V_spec)
+                plot_magnitude_calc(st, st_S, V_spec, E_acc)
         M0s.append(2 * G * np.mean(E_Ss) / 1e-3)  # Stress drop = 1e-3 GPa
     Mw = (0.6667 * np.log10(np.mean(M0s))) - 6.07
     print(Mw)
@@ -325,13 +327,16 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     return
 
 
-def plot_magnitude_calc(st, st_S, V_spec):
+def plot_magnitude_calc(st, st_S, V_spec, E_acc):
     """QC plot for magnitude estimation"""
     fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
     axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
     axes[0].plot(st_S[0].times(reftime=st[0].stats.starttime),
                  st_S[0].data, color='r', linewidth=0.8)
+    axes[0].set_title(st[0].id)
     axes[1] = V_spec.plot()
+    axes[1].annotate(xy=(0.03, 0.7), s='Energy: {}'.format(E_acc), fontsize=8,
+                     xycoords='axes fraction')
     plt.show()
     return
 
