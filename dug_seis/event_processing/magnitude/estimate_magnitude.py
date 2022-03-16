@@ -269,7 +269,7 @@ def est_magnitude_spectra(event, stream, coordinates, global_to_local, Vp, Vs, p
 
 
 def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
-                         inventory, plot=False):
+                         Rc, Q, inventory, plot=False):
     """
     Apply a magnitude estimation estimates the energy in the acceleration
     arrival of the S wave. Follows Kwiatek et al work from Aspo
@@ -313,14 +313,15 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
         E_Ss = []
         for tr in st_S:
-            Etr = tr.copy()
-            Etr.data = Etr.data**2
             V_spec = do_spectrum(tr)
             freqs = V_spec.get_freq()
+            # Kwiatec & BenZion formulation
+            Espec = (V_spec.data * np.exp(np.pi * freqs * distance / Vs / Q))**2
+            # Integrate over passband
             band_ints = np.where(freqs > 2000.)
             int_f = freqs[band_ints]
-            int_V = np.trapz(V_spec.data[band_ints], x=int_f)
-            E_acc = 8 * np.pi * p * Vs * distance * int_V
+            Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
+            E_acc = 4 * np.pi * p * Vs * Rc**2 * (distance / Rc)**2 * Jc
             E_Ss.append(E_acc)
             if plot:
                 plot_magnitude_calc(st, st_S, V_spec, E_acc)
