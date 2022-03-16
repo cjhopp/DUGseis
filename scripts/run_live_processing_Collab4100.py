@@ -360,12 +360,15 @@ def launch_processing(project):
                 write_st.write('{}/{}.ms'.format(
                     project.config['paths']['out_wav_folder'],
                     event.resource_id.id.split('/')[-1]), format='MSEED')
-                est_magnitude_energy(
-                    event=event, stream=st_mags,
-                    coordinates=project.cartesian_coordinates,
-                    global_to_local=project.global_to_local_coordinates,
-                    Vs=3700, p=3050, G=40, inventory=project.inventory,
-                    Q=210, Rc=0.63, plot=False)
+                try:
+                    est_magnitude_energy(
+                        event=event, stream=st_mags,
+                        coordinates=project.cartesian_coordinates,
+                        global_to_local=project.global_to_local_coordinates,
+                        Vs=3700, p=3050, G=40, inventory=project.inventory,
+                        Q=210, Rc=0.63, plot=False)
+                except ValueError:
+                    pass
 
             # Write the classification as a comment.
             event.comments = [
