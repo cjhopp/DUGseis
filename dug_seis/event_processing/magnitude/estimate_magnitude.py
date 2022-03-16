@@ -336,7 +336,7 @@ def plot_magnitude_calc(st, st_S, V_spec, E_acc):
                  st_S[0].data, color='r', linewidth=0.8)
     axes[0].set_title(st[0].id)
     axes[1] = V_spec.plot()
-    axes[1].annotate(xy=(0.03, 0.7), test='Energy: {}'.format(E_acc), fontsize=8,
+    axes[1].annotate(xy=(0.03, 0.7), text='Energy: {}'.format(E_acc), fontsize=8,
                      xycoords='axes fraction')
     plt.show()
     return
