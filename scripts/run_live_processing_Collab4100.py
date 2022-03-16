@@ -229,17 +229,14 @@ def launch_processing(project):
         if len(st_all) == 0:
             print('No waveform data found')
             continue
+        for tr in st_all:
+            if isinstance(tr.data, np.ma.masked_array):
+                tr.data = tr.data.filled(fill_value=tr.data.mean())
         # Separate triggering and magnitude traces
         st_mags = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         st_triggering = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
-        for tr in st_triggering:
-            if isinstance(tr.data, np.ma.masked_array):
-                tr.data = tr.data.filled(fill_value=tr.data.mean())
-        for tr in st_mags:
-            if isinstance(tr.data, np.ma.masked_array):
-                tr.data = tr.data.filled(fill_value=tr.data.mean())
         # # Depike triggering trace
         cc_thresh = 0.7
         # Track parallel processes and eliminate those spawned during despike on completion
