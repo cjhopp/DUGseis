@@ -358,8 +358,8 @@ def launch_processing(project):
                 write_st = st_all.slice(starttime=o.time - 0.05,
                                         endtime=o.time + 0.1)
                 write_st.write('{}/{}.ms'.format(
-                    project.config['paths']['spike_mseed'],
-                    event.resource_id.id), format='MSEED')
+                    project.config['paths']['out_wav_folder'],
+                    event.resource_id.id.split('/')[-1]), format='MSEED')
                 est_magnitude_energy(
                     event=event, stream=st_mags,
                     coordinates=project.cartesian_coordinates,
