@@ -284,16 +284,18 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     :return:
     """
     o = event.preferred_origin()
+    str = stream.copy()
     # Remove response for stream
-    stream = stream.copy().trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
-    stream.detrend('linear')
-    stream.detrend('simple')
-    stream.resample(sampling_rate=40000.)
-    stream.remove_response(inventory=inventory, output="ACC",
-                            water_level=600, plot=False,
-                            pre_filt=[20, 30, 40000, 50000])
+    str.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
+    str.detrend('linear')
+    str.detrend('simple')
+    str.resample(sampling_rate=40000.)
+    str.remove_response(inventory=inventory, output="ACC",
+                        water_level=600, plot=False,
+                        pre_filt=[20, 30, 40000, 50000])
     x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
                               depth=o.depth)
+    print(str.traces)
     M0s = []
     for pk in event.picks:
         sx, sy, sz = coordinates[pk.waveform_id.id]
@@ -302,7 +304,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         print('Distance {}'.format(distance))
         tt_S = distance / Vs
         s_time = o.time + tt_S
-        st = stream.select(station=pk.waveform_id.id).copy()
+        st = str.select(station=pk.waveform_id.id).copy()
         st.filter(type='highpass', freq=2000.)
         st.integrate().detrend('linear')
         if len(st) == 0:
