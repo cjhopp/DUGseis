@@ -17,8 +17,8 @@ paths:
   spike_mseed: 'chet-collab/wavs/ERT_spikes'
   database: 'sqlite://Collab_live_data/db.sqlite'
   cache_folder: 'Collab_live_data/cache'
-  out_wav_folder: '/mnt/data2/realtime_wav_snippets'
-  out_catalog_folder: '/mnt/data2/realtime_catalog'
+  out_wav_folder: '/mnt/QNAP1/MEQ_output/realtime_wav_snippets'
+  out_catalog_folder: '/mnt/QNAP1/MEQ_output/realtime_catalog'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
