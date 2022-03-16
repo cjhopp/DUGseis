@@ -74,12 +74,11 @@ class Spectrum(Trace):
 
     def plot(self, **kwargs):
         freq = self.get_freq()
-        import matplotlib.pyplot as plt
         plt.loglog(freq, self.data, **kwargs)
         plt.grid(True)
         plt.xlabel('Frequency (Hz)')
         plt.ylabel('Amplitude')
-        plt.show()
+        return plt.gca()
 
     def slice(self, fmin, fmax, pad=False, nearest_sample=True,
               fill_value=None):
@@ -310,7 +309,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         st_noise = st.slice(starttime=pk.time - .1,
                             endtime=pk.time - 0.01).copy()
         st_noise.integrate().detrend('linear')  # VEL
-        st_S = st.slice(starttime=s_time, endtime=s_time + 0.016).copy()
+        st_S = st.slice(starttime=s_time, endtime=s_time + 0.01).copy()
         st_S.integrate().detrend('linear')  # VEL
         if plot:
             st_S.plot()
@@ -321,13 +320,24 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
             E_acc = 8 * np.pi * p * Vs * distance * int_V
             E_Ss.append(E_acc)
             if plot:
-                print(int_V)
-        M0s.append(2 * G * np.mean(E_Ss) * 1e3)  # Stress drop = 1e-3 GPa
+                plot_magnitude_calc(st, st_S, V_spec)
+        M0s.append(2 * G * np.mean(E_Ss) / 1e-3)  # Stress drop = 1e-3 GPa
     Mw = (0.6667 * np.log10(np.mean(M0s))) - 6.07
     print(Mw)
     magnitude = Magnitude(mag=Mw, type='Mw', origin_id=o.resource_id)
     event.magnitudes.append(magnitude)
     event.preferred_magnitude_id = event.magnitudes[-1].resource_id
+    return
+
+
+def plot_magnitude_calc(st, st_S, V_spec):
+    """QC plot for magnitude estimation"""
+    fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
+    axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
+    axes[0].plot(st_S[0].times(reftime=st[0].stats.starttime),
+                 st_S[0].data, color='r', linewidth=0.8)
+    axes[1] = V_spec.plot()
+    plt.show()
     return
 
 
