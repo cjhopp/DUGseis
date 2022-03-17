@@ -34,7 +34,7 @@ def plot_3D(locs, boreholes, axes):
 
 
 def plot_magtime(times, mags, axes):
-    mag_inds = np.where(~np.isnan(np.array(mags)))
+    mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     mag_times = np.array(times)[mag_inds]
     axes.stem(mag_times, mags)
@@ -79,7 +79,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
         if len(ev.magnitudes) > 0:
             mags.append(ev.preferred_magnitude().mag)
         else:
-            mags.append(None)
+            mags.append(-999.)
     plot_mapview(hmc_locs, boreholes, axes_map)
     plot_3D(hmc_locs, boreholes, axes_3D)
     plot_magtime(times, mags, axes_time)
