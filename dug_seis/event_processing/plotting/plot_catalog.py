@@ -27,9 +27,16 @@ from matplotlib.gridspec import GridSpec
 
 def plot_3D(locs, boreholes, colors, axes):
     x, y, z = zip(*locs)
-    for bh in boreholes:
+    for i, bh in enumerate(boreholes):
         bh = np.array(bh)
-        axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
+        if i == 4:
+            color = 'r'
+            linewidth = 1.3
+        else:
+            color = 'k'
+            linewidth = 0.8
+        axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
+                  linewidth=linewidth)
     axes.scatter(x, y, z, marker='o', c=colors, s=5)
     axes.set_xlabel('Easting [HMC]', fontsize=14)
     axes.set_ylabel('Northing [HMC]', fontsize=14)
@@ -58,9 +65,15 @@ def plot_magtime(times, mags, axes):
 
 def plot_mapview(locs, boreholes, colors, axes):
     # Plot boreholes
-    for bh in boreholes:
-        bh= np.array(bh)
-        axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
+    for i, bh in enumerate(boreholes):
+        bh = np.array(bh)
+        if i == 4:
+            color = 'r'
+            linewidth = 1.3
+        else:
+            color = 'k'
+            linewidth = 0.8
+        axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
     x, y, z = zip(*locs)
     axes.scatter(x, y, marker='o', c=colors, s=5)
     axes.set_ylim([-920, -840])
@@ -78,9 +91,9 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     :param boreholes:
     :return:
     """
-    fig = plt.figure(constrained_layout=False, figsize=(18, 11))
+    fig = plt.figure(constrained_layout=False, figsize=(18, 13))
     fig.suptitle('Realtime MEQ', fontsize=20)
-    gs = GridSpec(ncols=18, nrows=11, figure=fig)
+    gs = GridSpec(ncols=18, nrows=13, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
     axes_time = fig.add_subplot(gs[9:, :])
