@@ -302,7 +302,7 @@ def launch_processing(project):
 
         for event_candidate in detected_events:
             # Skip CASSM and electronic noise
-            if event_candidate['classification'] in ['electronic', 'active']:
+            if event_candidate['classification'] in ['electronic']:#, 'active']:
                 continue
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
