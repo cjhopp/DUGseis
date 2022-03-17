@@ -110,6 +110,7 @@ _CONFIG_FILE_SCHEMA = schema.Schema(
             "database": str,
             "out_wav_folder": str,
             "out_catalog_folder": str,
+            "output_figure": str,
         },
         "temporal_range": {
             # Any valid time string or number or what not should work.

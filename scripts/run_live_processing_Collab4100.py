@@ -42,6 +42,7 @@ from dug_seis.event_processing.magnitude.estimate_magnitude import (
 from dug_seis.event_processing.location.locate_homogeneous import (
     locate_in_homogeneous_background_medium,
 )
+from dug_seis.event_processing.plotting.plot_catalog import plot_all
 
 # The logging is optional, but useful.
 util.setup_logging_to_file(
@@ -387,6 +388,10 @@ def launch_processing(project):
             f"{len(detected_events)} event(s)."
         )
         total_event_count += added_event_count
+        # Plot catalog data
+        catalog = project.db.get_objects(object_type="Event")
+        boreholes = project.config['graphical_interface']['3d_view']['line_segments']
+        plot_all(catalog, boreholes, outfile=project.config['paths']['output_figure'])
         # Dump catalog to file
         project.db.dump_as_quakeml_files(
             folder=project.config['paths']['out_catalog_folder'])
