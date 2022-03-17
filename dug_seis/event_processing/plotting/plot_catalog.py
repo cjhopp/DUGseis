@@ -28,7 +28,9 @@ from matplotlib.gridspec import GridSpec
 def plot_3D(locs, boreholes, axes):
     x, y, z = zip(*locs)
     for bh in boreholes:
-        axes.plot(bh[0], bh[1], color='k', linewidth=0.8)
+        bh = np.array(bh)
+        print(bh)
+        axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
     axes.scatter(x, y, z, marker='o', color='magenta')
     return
 
@@ -46,9 +48,9 @@ def plot_magtime(times, mags, axes):
 def plot_mapview(locs, boreholes, axes):
     # Plot boreholes
     for bh in boreholes:
-        axes.plot(bh[0], bh[1], color='k', linewidth=0.8)
+        bh= np.array(bh)
+        axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
-    print(x, y, z)
     axes.scatter(x, y, marker='o', color='magenta')
     return
 
