@@ -36,7 +36,7 @@ def plot_3D(locs, boreholes, colors, axes):
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_zlim([300, 380])
-    axes.view_init(-16., 48.)
+    axes.view_init(0., 50.)
     return
 
 
@@ -76,16 +76,18 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     :param boreholes:
     :return:
     """
-    fig = plt.figure(constrained_layout=False, figsize=(14, 11))
+    fig = plt.figure(constrained_layout=False, figsize=(18, 11))
+    fig.suptitle('Realtime MEQ')
+    plt.style.use('seaborn')
     gs = GridSpec(ncols=14, nrows=11, figure=fig)
-    axes_map = fig.add_subplot(gs[:7, :7])
-    axes_3D = fig.add_subplot(gs[:7, 7:], projection='3d')
-    axes_time = fig.add_subplot(gs[7:, :])
+    axes_map = fig.add_subplot(gs[:9, :9])
+    axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
+    axes_time = fig.add_subplot(gs[9:, :])
     # Convert to HMC system
     catalog = [ev for ev in catalog if len(ev.origins) > 0]
     catalog.sort(key=lambda x: x.origins[-1].time)
     endtime = catalog[-1].origins[-1].time
-    starttime = endtime - 7200
+    starttime = endtime - 3600
     cat_time = [ev for ev in catalog if ev.origins[-1].time > starttime]
     locs = [(ev.preferred_origin().latitude,
              ev.preferred_origin().longitude,
@@ -106,5 +108,6 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     plot_3D(hmc_locs, boreholes, colors, axes_3D)
     plot_magtime(times, mags, axes_time)
     fig.autofmt_xdate()
+    plt.tight_layout()
     plt.savefig(outfile, dpi=300)
     return
