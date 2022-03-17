@@ -78,7 +78,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     """
     fig = plt.figure(constrained_layout=False, figsize=(18, 11))
     fig.suptitle('Realtime MEQ')
-    gs = GridSpec(ncols=14, nrows=11, figure=fig)
+    gs = GridSpec(ncols=18, nrows=11, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
     axes_time = fig.add_subplot(gs[9:, :])
