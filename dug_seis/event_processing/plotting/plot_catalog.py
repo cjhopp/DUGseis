@@ -36,7 +36,7 @@ def plot_3D(locs, boreholes, colors, axes):
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_zlim([300, 380])
-    axes.view_init(0., 50.)
+    axes.view_init(0., 0.)
     return
 
 
@@ -78,7 +78,6 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     """
     fig = plt.figure(constrained_layout=False, figsize=(18, 11))
     fig.suptitle('Realtime MEQ')
-    plt.style.use('seaborn')
     gs = GridSpec(ncols=14, nrows=11, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
