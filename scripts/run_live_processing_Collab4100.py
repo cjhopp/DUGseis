@@ -83,21 +83,25 @@ trigger_chans = [#'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH'
                  'CB.DMU4..XNX', #'CB.DMU4..XNY', #'CB.DMU4..XNZ',
                  'CB.CTrig..']
 
-mag_chans = ['CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
-             'CB.AML2..XNY', #'CB.AML2..XNZ',
-             'CB.AML3..XNX', 'CB.AML3..XNY',
-             'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
-             'CB.AMU1..XNX', #'CB.AMU1..XNY',
-             'CB.AMU1..XNZ', 'CB.AMU2..XNX',
-             'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
-             'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
-             'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
-             'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
-             'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
-             'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
-             'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
-             'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ'
-             ]
+mag_chans = [#'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                 #'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                 #'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+                 'CB.AML1..XNX', #'CB.AML1..XNY', 'CB.AML1..XNZ',
+                 'CB.AML2..XNX', #'CB.AML2..XNY', #'CB.AML2..XNZ',
+                 'CB.AML3..XNX', #'CB.AML3..XNY', 'CB.AML3..XNZ',
+                 'CB.AML4..XNX', #'CB.AML4..XNY', 'CB.AML4..XNZ',
+                 'CB.AMU1..XNX', #'CB.AMU1..XNY', 'CB.AMU1..XNZ',
+                 'CB.AMU2..XNX', #'CB.AMU2..XNY', 'CB.AMU2..XNZ',
+                 'CB.AMU3..XNX', #'CB.AMU3..XNY', 'CB.AMU3..XNZ',
+                 'CB.AMU4..XNX', #'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+                 'CB.DML1..XNX', #'CB.DML1..XNY', 'CB.DML1..XNZ',
+                 'CB.DML2..XNX', #'CB.DML2..XNY', 'CB.DML2..XNZ',
+                 'CB.DML3..XNX', #'CB.DML3..XNY', 'CB.DML3..XNZ',
+                 #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                 'CB.DMU1..XNX', #'CB.DMU1..XNY', 'CB.DMU1..XNZ',
+                 'CB.DMU2..XNX', #'CB.DMU2..XNY', 'CB.DMU2..XNZ',
+                 'CB.DMU3..XNX', #'CB.DMU3..XNY', 'CB.DMU3..XNZ',
+                 'CB.DMU4..XNX']
 
 def _interp_gap(data, peak_loc, interp_len, mad, mean):
     """

@@ -34,8 +34,8 @@ def plot_3D(locs, boreholes, axes):
     axes.scatter(x, y, z, marker='o', color='magenta', markersize=0.8)
     axes.set_xlabel('Easting [HMC]')
     axes.set_ylabel('Northing [HMC]')
-    axes.set_ylims([-920, -840])
-    axes.set_xlims([1200, 1280])
+    axes.set_ylim([-920, -840])
+    axes.set_xlim([1200, 1280])
     axes.set_zlim([300, 380])
     return
 
@@ -63,8 +63,8 @@ def plot_mapview(locs, boreholes, axes):
         axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
     axes.scatter(x, y, marker='o', color='magenta')
-    axes.set_ylims([-920, -840])
-    axes.set_xlims([1200, 1280])
+    axes.set_ylim([-920, -840])
+    axes.set_xlim([1200, 1280])
     return
 
 
