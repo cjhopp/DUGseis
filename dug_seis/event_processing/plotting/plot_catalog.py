@@ -105,8 +105,8 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     cat_time = [ev for ev in catalog if ev.origins[-1].time > starttime]
     locs = [(ev.preferred_origin().latitude,
              ev.preferred_origin().longitude,
-             ev.preferred_origin().depth) for ev in catalog if
-            ev.comments[-1].text == 'Classification: passive']
+             ev.preferred_origin().depth) for ev in catalog]# if
+            # ev.comments[-1].text == 'Classification: passive']
     hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
                 for pt in locs]
     colors = ['lightgray' if ev.origins[-1].time < starttime else 'dodgerblue'
