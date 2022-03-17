@@ -23,7 +23,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from matplotlib.gridspec import GridSpec
-from dug_seis.coordinate_transforms import global_to_local
 
 
 def plot_3D(locs, boreholes, axes):
@@ -50,7 +49,7 @@ def plot_mapview(locs, boreholes, axes):
     return
 
 
-def plot_all(catalog, boreholes, outfile):
+def plot_all(catalog, boreholes, global_to_local, outfile):
     """
     Plot three panels of basic MEQ information to file
 
@@ -69,7 +68,8 @@ def plot_all(catalog, boreholes, outfile):
              ev.preferred_origin().longitude,
              ev.preferred_origin().depth) for ev in catalog if
             ev.comments[-1].text == 'Classification: passive']
-    hmc_locs = [global_to_local(pt) for pt in locs]
+    hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
+                for pt in locs]
     times = [ev.preferred_origin().time for ev in catalog]
     mags = []
     for ev in catalog:
