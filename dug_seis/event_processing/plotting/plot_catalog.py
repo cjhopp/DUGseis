@@ -30,10 +30,10 @@ def plot_3D(locs, boreholes, colors, axes):
     for i, bh in enumerate(boreholes):
         bh = np.array(bh)
         if i == 4:
-            color = 'r'
+            color = 'indigo'
             linewidth = 1.3
         else:
-            color = 'k'
+            color = 'darkgray'
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
                   linewidth=linewidth)
@@ -68,10 +68,10 @@ def plot_mapview(locs, boreholes, colors, axes):
     for i, bh in enumerate(boreholes):
         bh = np.array(bh)
         if i == 4:
-            color = 'r'
+            color = 'indigo'
             linewidth = 1.3
         else:
-            color = 'k'
+            color = 'darkgray'
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
     x, y, z = zip(*locs)
