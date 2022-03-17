@@ -286,7 +286,7 @@ def launch_processing(project):
                 "trigger_off_extension": 0.01,
                 "details": True,
             },
-            plot='.',
+            plot=False,
         )
 
         logger.info(
@@ -329,7 +329,7 @@ def launch_processing(project):
                         "pol_len": 50,
                         "pol_coeff": 10,
                         "uncert_coeff": 3,
-                        "plot": True
+                        "plot": False
                     },
                 )
 
@@ -371,7 +371,7 @@ def launch_processing(project):
                         coordinates=project.cartesian_coordinates,
                         global_to_local=project.global_to_local_coordinates,
                         Vs=3700, p=3050, G=40, inventory=project.inventory,
-                        Q=210, Rc=0.63, plot=True)
+                        Q=210, Rc=0.63, plot=False)
                 except ValueError:
                     pass
 
