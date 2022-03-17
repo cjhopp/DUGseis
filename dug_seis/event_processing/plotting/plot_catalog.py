@@ -34,13 +34,9 @@ def plot_3D(locs, boreholes, axes):
 
 
 def plot_magtime(times, mags, axes):
-    print(mags)
     mag_inds = np.where(np.array(mags) > -999.)
-    print(mag_inds)
     mags = np.array(mags)[mag_inds]
-    print(mags)
     mag_times = np.array(times)[mag_inds]
-    print(mag_times)
     axes.stem(mag_times, mags)
     ax2 = axes.twinx()
     ax2.step(times, np.arange(len(times)))
@@ -52,7 +48,8 @@ def plot_mapview(locs, boreholes, axes):
     for bh in boreholes:
         axes.plot(bh[0], bh[1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
-    axes.scatter(x, y, z, marker='o', color='magenta')
+    print(x, y, z)
+    axes.scatter(x, y, marker='o', color='magenta')
     return
 
 
