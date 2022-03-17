@@ -51,7 +51,7 @@ def plot_magtime(times, mags, axes):
     axes.set_ylim([-10, 0.])
     axes.set_ylabel('Mw', fontsize=14)
     ax2.set_ylabel('Cumulative seismic events', fontsize=14)
-    axes.set_ylabel('Time [UTC]', fontsize=14)
+    axes.set_xlabel('Time [UTC]', fontsize=14)
     ax2.tick_params(axis='y', colors='firebrick')
     return
 
