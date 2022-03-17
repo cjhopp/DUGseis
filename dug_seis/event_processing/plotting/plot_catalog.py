@@ -77,7 +77,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
             ev.comments[-1].text == 'Classification: passive']
     hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
                 for pt in locs]
-    times = [ev.preferred_origin().time for ev in catalog]
+    times = [ev.preferred_origin().time.datetime for ev in catalog]
     mags = []
     for ev in catalog:
         if len(ev.magnitudes) > 0:
