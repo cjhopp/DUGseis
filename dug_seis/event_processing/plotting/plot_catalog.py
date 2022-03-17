@@ -34,9 +34,13 @@ def plot_3D(locs, boreholes, axes):
 
 
 def plot_magtime(times, mags, axes):
+    print(mags)
     mag_inds = np.where(np.array(mags) > -999.)
+    print(mag_inds)
     mags = np.array(mags)[mag_inds]
+    print(mags)
     mag_times = np.array(times)[mag_inds]
+    print(mag_times)
     axes.stem(mag_times, mags)
     ax2 = axes.twinx()
     ax2.step(times, np.arange(len(times)))
