@@ -31,12 +31,13 @@ def plot_3D(locs, boreholes, colors, axes):
         bh = np.array(bh)
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
     axes.scatter(x, y, z, marker='o', c=colors, s=5)
-    axes.set_xlabel('Easting [HMC]')
-    axes.set_ylabel('Northing [HMC]')
-    axes.set_ylim([-920, -840])
-    axes.set_xlim([1200, 1280])
-    axes.set_zlim([300, 380])
-    axes.view_init(0., 0.)
+    axes.set_xlabel('Easting [HMC]', fontsize=14)
+    axes.set_ylabel('Northing [HMC]', fontsize=14)
+    axes.set_zlabel('Elevation [m]', fontsize=14)
+    axes.set_ylim([-910, -850])
+    axes.set_xlim([1210, 1270])
+    axes.set_zlim([300, 360])
+    axes.view_init(10., -20.)
     return
 
 
@@ -48,8 +49,9 @@ def plot_magtime(times, mags, axes):
     ax2 = axes.twinx()
     ax2.step(times, np.arange(len(times)), color='firebrick')
     axes.set_ylim([-10, 0.])
-    axes.set_ylabel('Estimated Mw', fontsize=14)
-    ax2.set_ylabel('Cumulative seismic events')
+    axes.set_ylabel('Mw', fontsize=14)
+    ax2.set_ylabel('Cumulative seismic events', fontsize=14)
+    axes.set_ylabel('Time [UTC]', fontsize=14)
     ax2.tick_params(axis='y', colors='firebrick')
     return
 
@@ -63,8 +65,8 @@ def plot_mapview(locs, boreholes, colors, axes):
     axes.scatter(x, y, marker='o', c=colors, s=5)
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
-    axes.set_xlabel('Easting [HMC]')
-    axes.set_ylabel('Northing [HMC]')
+    axes.set_xlabel('Easting [HMC]', fontsize=14)
+    axes.set_ylabel('Northing [HMC]', fontsize=14)
     return
 
 
@@ -77,7 +79,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     :return:
     """
     fig = plt.figure(constrained_layout=False, figsize=(18, 11))
-    fig.suptitle('Realtime MEQ')
+    fig.suptitle('Realtime MEQ', fontsize=20)
     gs = GridSpec(ncols=18, nrows=11, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
