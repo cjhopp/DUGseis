@@ -31,7 +31,12 @@ def plot_3D(locs, boreholes, axes):
         bh = np.array(bh)
         print(bh)
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
-    axes.scatter(x, y, z, marker='o', color='magenta')
+    axes.scatter(x, y, z, marker='o', color='magenta', markersize=0.8)
+    axes.set_xlabel('Easting [HMC]')
+    axes.set_ylabel('Northing [HMC]')
+    axes.set_ylims([-920, -840])
+    axes.set_xlims([1200, 1280])
+    axes.set_zlim([300, 380])
     return
 
 
@@ -39,9 +44,15 @@ def plot_magtime(times, mags, axes):
     mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     mag_times = np.array(times)[mag_inds]
-    axes.stem(mag_times, mags)
+    axes.stem(mag_times, mags, bottom=-10, basefmt='k-')
     ax2 = axes.twinx()
-    ax2.step(times, np.arange(len(times)))
+    ax2.step(times, np.arange(len(times)), color='firebrick')
+    axes.margins(0.)
+    ax2.margins(0.)
+    axes.set_ylim([-10, 0.])
+    axes.set_ylabel('Estimated Mw', fontsize=14)
+    ax2.set_ylabel('Cumulative seismic events')
+    ax2.tick_params(axis='y', colors='firebrick')
     return
 
 
@@ -52,6 +63,8 @@ def plot_mapview(locs, boreholes, axes):
         axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
     axes.scatter(x, y, marker='o', color='magenta')
+    axes.set_ylims([-920, -840])
+    axes.set_xlims([1200, 1280])
     return
 
 
@@ -70,6 +83,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     axes_time = fig.add_subplot(gs[7:, :])
     # Convert to HMC system
     catalog = [ev for ev in catalog if len(ev.origins) > 0]
+    catalog.sort(key=lambda x: x.origins[-1].time)
     locs = [(ev.preferred_origin().latitude,
              ev.preferred_origin().longitude,
              ev.preferred_origin().depth) for ev in catalog if
@@ -86,5 +100,6 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     plot_mapview(hmc_locs, boreholes, axes_map)
     plot_3D(hmc_locs, boreholes, axes_3D)
     plot_magtime(times, mags, axes_time)
+    fig.autofmt_xdate()
     plt.savefig(outfile, dpi=300)
     return
