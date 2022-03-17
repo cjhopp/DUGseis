@@ -33,7 +33,7 @@ def plot_3D(locs, boreholes, colors, axes):
             color = 'indigo'
             linewidth = 1.3
         else:
-            color = 'darkgray'
+            color = 'dimgray'
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
                   linewidth=linewidth)
@@ -71,7 +71,7 @@ def plot_mapview(locs, boreholes, colors, axes):
             color = 'indigo'
             linewidth = 1.3
         else:
-            color = 'darkgray'
+            color = 'dimgray'
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
     x, y, z = zip(*locs)
