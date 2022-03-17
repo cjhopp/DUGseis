@@ -25,12 +25,12 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
 
-def plot_3D(locs, boreholes, axes):
+def plot_3D(locs, boreholes, colors, axes):
     x, y, z = zip(*locs)
     for bh in boreholes:
         bh = np.array(bh)
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
-    axes.scatter(x, y, z, marker='o', color='magenta', s=1.5)
+    axes.scatter(x, y, z, marker='o', c=colors, s=5)
     axes.set_xlabel('Easting [HMC]')
     axes.set_ylabel('Northing [HMC]')
     axes.set_ylim([-920, -840])
@@ -54,13 +54,13 @@ def plot_magtime(times, mags, axes):
     return
 
 
-def plot_mapview(locs, boreholes, axes):
+def plot_mapview(locs, boreholes, colors, axes):
     # Plot boreholes
     for bh in boreholes:
         bh= np.array(bh)
         axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
-    axes.scatter(x, y, marker='o', color='magenta', s=1.5)
+    axes.scatter(x, y, marker='o', c=colors, s=5)
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_xlabel('Easting [HMC]')
@@ -84,21 +84,26 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     # Convert to HMC system
     catalog = [ev for ev in catalog if len(ev.origins) > 0]
     catalog.sort(key=lambda x: x.origins[-1].time)
+    endtime = catalog[-1].origins[-1].time
+    starttime = endtime - 7200
+    cat_time = [ev for ev in catalog if ev.origins[-1].time > starttime]
     locs = [(ev.preferred_origin().latitude,
              ev.preferred_origin().longitude,
              ev.preferred_origin().depth) for ev in catalog if
             ev.comments[-1].text == 'Classification: passive']
     hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
                 for pt in locs]
-    times = [ev.preferred_origin().time.datetime for ev in catalog]
+    colors = ['lightgray' if ev.origins[-1].time < starttime else 'dodgerblue'
+              for ev in catalog]
+    times = [ev.preferred_origin().time.datetime for ev in cat_time]
     mags = []
     for ev in catalog:
         if len(ev.magnitudes) > 0:
             mags.append(ev.preferred_magnitude().mag)
         else:
             mags.append(-999.)
-    plot_mapview(hmc_locs, boreholes, axes_map)
-    plot_3D(hmc_locs, boreholes, axes_3D)
+    plot_mapview(hmc_locs, boreholes, colors, axes_map)
+    plot_3D(hmc_locs, boreholes, colors, axes_3D)
     plot_magtime(times, mags, axes_time)
     fig.autofmt_xdate()
     plt.savefig(outfile, dpi=300)
