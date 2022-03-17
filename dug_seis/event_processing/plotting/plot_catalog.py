@@ -29,14 +29,14 @@ def plot_3D(locs, boreholes, axes):
     x, y, z = zip(*locs)
     for bh in boreholes:
         bh = np.array(bh)
-        print(bh)
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color='k', linewidth=0.8)
-    axes.scatter(x, y, z, marker='o', color='magenta', s=0.8)
+    axes.scatter(x, y, z, marker='o', color='magenta', s=1.5)
     axes.set_xlabel('Easting [HMC]')
     axes.set_ylabel('Northing [HMC]')
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_zlim([300, 380])
+    axes.view_init(-16., 48.)
     return
 
 
@@ -47,8 +47,6 @@ def plot_magtime(times, mags, axes):
     axes.stem(mag_times, mags, bottom=-10, basefmt='k-')
     ax2 = axes.twinx()
     ax2.step(times, np.arange(len(times)), color='firebrick')
-    axes.margins(0.)
-    ax2.margins(0.)
     axes.set_ylim([-10, 0.])
     axes.set_ylabel('Estimated Mw', fontsize=14)
     ax2.set_ylabel('Cumulative seismic events')
@@ -62,9 +60,11 @@ def plot_mapview(locs, boreholes, axes):
         bh= np.array(bh)
         axes.plot(bh[:, 0], bh[:, 1], color='k', linewidth=0.8)
     x, y, z = zip(*locs)
-    axes.scatter(x, y, marker='o', color='magenta', s=0.8)
+    axes.scatter(x, y, marker='o', color='magenta', s=1.5)
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
+    axes.set_xlabel('Easting [HMC]')
+    axes.set_ylabel('Northing [HMC]')
     return
 
 
