@@ -11,7 +11,7 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/mnt/QNAP1/VBoxData/'
+    - '/mnt/QNAP2/VBoxData/'
   stationxml_folders:
     - 'chet-collab/single-channel-inventories'
   spike_mseed: 'chet-collab/wavs/ERT_spikes'
