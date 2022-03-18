@@ -27,8 +27,10 @@ from datetime import datetime
 from matplotlib.gridspec import GridSpec
 
 
-def plot_3D(locs, boreholes, colors, axes):
+def plot_3D(locs, boreholes, colors, mags, axes):
     x, y, z = zip(*locs)
+    mag_inds = np.where(np.array(mags) > -999.)
+    mags = np.array(mags)[mag_inds]
     for i, bh in enumerate(boreholes):
         bh = np.array(bh)
         if i == 4:
@@ -39,7 +41,8 @@ def plot_3D(locs, boreholes, colors, axes):
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
                   linewidth=linewidth)
-    axes.scatter(x, y, z, marker='o', c=colors, s=5)
+    sizes = (mags - np.min(mags))**2
+    axes.scatter(x, y, z, marker='o', c=colors, s=sizes)
     axes.set_xlabel('Easting [HMC]', fontsize=14)
     axes.set_ylabel('Northing [HMC]', fontsize=14)
     axes.set_zlabel('Elevation [m]', fontsize=14)
@@ -65,7 +68,9 @@ def plot_magtime(times, mags, axes):
     return
 
 
-def plot_mapview(locs, boreholes, colors, axes):
+def plot_mapview(locs, boreholes, colors, mags, axes):
+    mag_inds = np.where(np.array(mags) > -999.)
+    mags = np.array(mags)[mag_inds]
     # Plot boreholes
     for i, bh in enumerate(boreholes):
         bh = np.array(bh)
@@ -77,7 +82,8 @@ def plot_mapview(locs, boreholes, colors, axes):
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
     x, y, z = zip(*locs)
-    axes.scatter(x, y, marker='o', c=colors, s=5)
+    sizes = (mags - np.min(mags))**2
+    axes.scatter(x, y, marker='o', c=colors, s=sizes)
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_xlabel('Easting [HMC]', fontsize=14)
@@ -120,8 +126,8 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
             mags.append(ev.preferred_magnitude().mag)
         else:
             mags.append(-999.)
-    plot_mapview(hmc_locs, boreholes, colors, axes_map)
-    plot_3D(hmc_locs, boreholes, colors, axes_3D)
+    plot_mapview(hmc_locs, boreholes, colors, mags, axes_map)
+    plot_3D(hmc_locs, boreholes, colors, mags, axes_3D)
     plot_magtime(times, mags, axes_time)
     fig.autofmt_xdate()
     plt.tight_layout()
