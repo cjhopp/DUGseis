@@ -90,7 +90,7 @@ def plot_mapview(locs, boreholes, colors, mags, axes):
     sizes = (mags + 9)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  marker='o', c=np.array(colors)[mag_inds], s=sizes)
-    axes.plot(hull_pts[:, 0], hull_pts[:, 1], linewidth=0.9, color='k')
+    axes.plot(hull_pts[0, :], hull_pts[1, :], linewidth=0.9, color='k')
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_xlabel('Easting [HMC]', fontsize=14)
