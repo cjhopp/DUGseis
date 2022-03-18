@@ -273,6 +273,7 @@ def q(r):
     q = 0.49710 * r**-1.0322 * np.exp(-.0035 * r)
     return q
 
+
 def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
                          Rc, Q, inventory, plot=False):
     """
@@ -315,7 +316,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
             print('{} not 3C'.format(pk.waveform_id.station_code))
             continue  # Pick from hydrophone
         st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
-        Sig_V = np.sum(np.array([tr.data for tr in st_S]), axis=1)**2
+        Sig_V = np.sum(np.array([tr.data**2 for tr in st_S]), axis=1)
         int_sig_V = np.trapz(Sig_V)
         r0 = 0.04  # reference distance in km
         E = 4 * np.pi * distance**2 * (r0 * q(r0) / distance * q(distance))**2 * Vs * p * int_sig_V
