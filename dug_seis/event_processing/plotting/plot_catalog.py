@@ -73,7 +73,7 @@ def plot_magtime(times, mags, axes):
 
 
 def plot_mapview(locs, boreholes, colors, mags, axes):
-    hull_pts = np.load('/home/sigmav/chet-collab/drift_pts/4100L_xy_alphashape_pts.npy')
+    hull_pts = np.load('/home/sigmav/chet-collab/drift_points/4100L_xy_alphashape_pts.npy')
     mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     # Plot boreholes
