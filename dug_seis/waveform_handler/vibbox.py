@@ -53,7 +53,11 @@ def vibbox_read(fname, seeds, debug=0):
         f.seek(DATA_OFFSET, os.SEEK_SET)
         A = np.fromfile(f, dtype=np.uint32,
                         count=BUFFER_SIZE * NUM_OF_BUFFERS)
-        A = A.reshape(int(len(A) / no_channels), no_channels)
+        try:
+            A = A.reshape(int(len(A) / no_channels), no_channels)
+        except ValueError:
+            # File was interrupted mid-write. Return empty stream
+            return Stream()
     # Sanity check on number of channels provided in yaml
     if len(channels) != no_channels:
         print('Number of channels in config file not equal to number in data')

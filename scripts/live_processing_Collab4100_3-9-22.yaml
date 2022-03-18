@@ -19,13 +19,13 @@ paths:
   cache_folder: '/home/sigmav/data2/Collab_live_data/cache'
   out_wav_folder: '/home/sigmav/data2/realtime_wav_snippets'
   out_catalog_folder: '/home/sigmav/data2/realtime_catalog'
-  output_figure: '/home/sigmav/data2/realtime_plots/realtime_figure.png'
+  output_figure: '/home/sigmav/data2/meq_plots/realtime_figure.png'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-3-17T22:12:00.000Z
-  end_time: 2022-6-30T23:59:59.999Z
+  start_time: 2022-3-11T19:00:00.000Z
+  end_time: 2022-3-11T19:59:59.999Z
 
 graphical_interface:
   classifications:
