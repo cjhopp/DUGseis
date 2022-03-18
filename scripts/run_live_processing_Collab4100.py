@@ -302,7 +302,7 @@ def launch_processing(project):
 
         for event_candidate in detected_events:
             # Skip CASSM and electronic noise
-            if event_candidate['classification'] in ['electronic']:#, 'active']:
+            if event_candidate['classification'] in ['electronic', 'active']:
                 continue
             # Get the waveforms for the event processing. Note that this could
             # use the same channels as for the initial trigger or different ones.
@@ -371,7 +371,7 @@ def launch_processing(project):
                         coordinates=project.cartesian_coordinates,
                         global_to_local=project.global_to_local_coordinates,
                         Vs=3700, p=3050, G=40, inventory=project.inventory,
-                        Q=210, Rc=0.63, plot=False)
+                        Q=210, Rc=0.63, plot=True)
                 except ValueError:
                     pass
 
