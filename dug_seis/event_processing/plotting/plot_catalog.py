@@ -22,7 +22,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from matplotlib.gridspec import GridSpec
 
@@ -44,7 +44,8 @@ def plot_3D(locs, boreholes, colors, mags, axes):
     sizes = (mags + 9)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  np.array(z)[mag_inds], marker='o',
-                 c=np.array(colors)[mag_inds], s=sizes)
+                 c=np.array(colors)[mag_inds], s=sizes,
+                 alpha=0.7)
     axes.set_xlabel('Easting [HMC]', fontsize=14)
     axes.set_ylabel('Northing [HMC]', fontsize=14)
     axes.set_zlabel('Elevation [m]', fontsize=14)
@@ -67,10 +68,12 @@ def plot_magtime(times, mags, axes):
     ax2.set_ylabel('Cumulative seismic events', fontsize=14)
     axes.set_xlabel('Time [UTC]', fontsize=14)
     ax2.tick_params(axis='y', colors='firebrick')
+    axes.set_xlim([mag_times[-1] - timedelta(seconds=3600), mag_times[-1]])
     return
 
 
 def plot_mapview(locs, boreholes, colors, mags, axes):
+    hull_pts = np.load('/home/sigmav/chet-collab/drift_pts/4100L_xy_alphashape_pts.npy')
     mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     # Plot boreholes
@@ -87,6 +90,7 @@ def plot_mapview(locs, boreholes, colors, mags, axes):
     sizes = (mags + 9)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  marker='o', c=np.array(colors)[mag_inds], s=sizes)
+    axes.plot(hull_pts[:, 0], hull_pts[:, 1], linewidth=0.9, color='k')
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_xlabel('Easting [HMC]', fontsize=14)
