@@ -41,8 +41,9 @@ def plot_3D(locs, boreholes, colors, mags, axes):
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
                   linewidth=linewidth)
-    sizes = (mags - np.min(mags))**2
-    axes.scatter(x, y, z, marker='o', c=colors, s=sizes)
+    sizes = (mags + 9)**2
+    axes.scatter(x[mag_inds], y[mag_inds], z[mag_inds], marker='o',
+                 c=colors, s=sizes)
     axes.set_xlabel('Easting [HMC]', fontsize=14)
     axes.set_ylabel('Northing [HMC]', fontsize=14)
     axes.set_zlabel('Elevation [m]', fontsize=14)
@@ -82,8 +83,8 @@ def plot_mapview(locs, boreholes, colors, mags, axes):
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
     x, y, z = zip(*locs)
-    sizes = (mags - np.min(mags))**2
-    axes.scatter(x, y, marker='o', c=colors, s=sizes)
+    sizes = (mags + 9)**2
+    axes.scatter(x[mag_inds], y[mag_inds], marker='o', c=colors, s=sizes)
     axes.set_ylim([-920, -840])
     axes.set_xlim([1200, 1280])
     axes.set_xlabel('Easting [HMC]', fontsize=14)
