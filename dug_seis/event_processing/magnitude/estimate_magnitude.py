@@ -268,6 +268,11 @@ def est_magnitude_spectra(event, stream, coordinates, global_to_local, Vp, Vs, p
     return
 
 
+def q(r):
+    """Kanamori attenuation curve function. r in units of km"""
+    q = 0.49710 * r**-1.0322 * np.exp(-.0035 * r)
+    return q
+
 def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
                          Rc, Q, inventory, plot=False):
     """
@@ -298,33 +303,35 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     M0s = []
     for pk in event.picks:
         sx, sy, sz = coordinates[pk.waveform_id.id]
-        print(pk.waveform_id.id)
-        distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
+        # Distance in km
+        distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2) / 1000.
         print('Distance {}'.format(distance))
         tt_S = distance / Vs
         s_time = o.time + tt_S
-        st = str.select(id=pk.waveform_id.id).copy()
+        st = str.select(station=pk.waveform_id.station_code).copy()
         st.filter(type='highpass', freq=2000.)
         st.integrate().detrend('linear')
-        if len(st) == 0:
-            print('No traces for {}'.format(pk.waveform_id.station_code))
+        if len(st) != 3:
+            print('{} not 3C'.format(pk.waveform_id.station_code))
             continue  # Pick from hydrophone
         st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
-        E_Ss = []
-        for tr in st_S:
-            V_spec = do_spectrum(tr)
-            freqs = V_spec.get_freq()
-            # Kwiatec & BenZion formulation
-            Espec = (V_spec.data * np.exp((np.pi * freqs * distance) / (Vs * Q)))**2
-            # Integrate over passband
-            band_ints = np.where(freqs > 2000.)
-            int_f = freqs[band_ints]
-            Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
-            E_acc = 4 * np.pi * p * Vs * Rc**2 * (distance / Rc)**2 * Jc
-            E_Ss.append(E_acc)
-            if plot:
-                plot_magnitude_calc(st, st_S, V_spec, E_acc)
-        M0s.append(2 * G * np.mean(E_Ss) / 1e-3)  # Stress drop = 1e-3 GPa
+        Sig_V = np.sum(np.array([tr.data for tr in st_S]), axis=1)**2
+        int_sig_V = np.trapz(Sig_V)
+        r0 = 0.04  # reference distance in km
+        E = 4 * np.pi * distance**2 * (r0 * q(r0) / distance * q(distance))**2 * Vs * p * int_sig_V
+        V_spec = do_spectrum(st_S[0])
+        # # Kwiatec & BenZion formulation
+        # freqs = V_spec.get_freq()
+        # Espec = (V_spec.data * np.exp((np.pi * freqs * distance) / (Vs * Q)))**2
+        # # Integrate over passband
+        # band_ints = np.where(freqs > 2000.)
+        # int_f = freqs[band_ints]
+        # Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
+        # E_acc = 4 * np.pi * p * Vs * Rc**2 * (distance / Rc)**2 * Jc
+        # E_Ss.append(E_acc)
+        if plot:
+            plot_magnitude_calc(st, st_S, V_spec, E)
+        M0s.append(2 * G * E / 1e-3)  # Stress drop = 1e-3 GPa
     Mw = (0.6667 * np.log10(np.mean(M0s))) - 6.07
     print(Mw)
     magnitude = Magnitude(mag=Mw, type='Mw', origin_id=o.resource_id)

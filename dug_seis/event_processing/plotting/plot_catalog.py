@@ -22,6 +22,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from datetime import datetime
+
 from matplotlib.gridspec import GridSpec
 
 
@@ -92,7 +94,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     :return:
     """
     fig = plt.figure(constrained_layout=False, figsize=(18, 13))
-    fig.suptitle('Realtime MEQ', fontsize=20)
+    fig.suptitle('Realtime MEQ: {}'.format(datetime.now()), fontsize=20)
     gs = GridSpec(ncols=18, nrows=13, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
