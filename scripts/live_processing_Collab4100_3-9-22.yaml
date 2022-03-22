@@ -1,9 +1,9 @@
 version: 13
 
 meta:
-  project_name: Collab4850_dummy
-  project_location: SURF_4850
-  project_description: Collab4850_dummy
+  project_name: Collab4100_stim
+  project_location: SURF_4100
+  project_description: Collab4100_stim
 
 local_coordinate_system:
   epsg_code: 26713
@@ -11,7 +11,7 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/mnt/QNAP2/VBoxData/'
+    - '/mnt/QNAP1/VBoxData_stim/'
   stationxml_folders:
     - 'chet-collab/single-channel-inventories'
   spike_mseed: 'chet-collab/wavs/ERT_spikes'
@@ -24,8 +24,8 @@ paths:
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-3-11T19:00:00.000Z
-  end_time: 2022-3-11T19:59:59.999Z
+  start_time: 2022-3-22T20:40:00.000Z
+  end_time: 2022-6-1T23:59:59.999Z
 
 graphical_interface:
   classifications:

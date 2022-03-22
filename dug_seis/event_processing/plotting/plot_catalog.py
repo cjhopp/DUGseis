@@ -57,7 +57,7 @@ def plot_3D(locs, boreholes, colors, mags, axes):
 
 
 def plot_magtime(times, mags, axes):
-    mag_inds = np.where(np.array(mags) > -999.)
+    mag_inds = np.where(np.array(mags) != -999.)
     mags = np.array(mags)[mag_inds]
     mag_times = np.array(times)[mag_inds]
     axes.stem(mag_times, mags, bottom=-10, basefmt='k-')
@@ -68,7 +68,7 @@ def plot_magtime(times, mags, axes):
     ax2.set_ylabel('Cumulative seismic events', fontsize=14)
     axes.set_xlabel('Time [UTC]', fontsize=14)
     ax2.tick_params(axis='y', colors='firebrick')
-    axes.set_xlim([mag_times[-1] - timedelta(seconds=3600), mag_times[-1]])
+    axes.set_xlim([datetime.utcnow() - timedelta(seconds=3600), datetime.utcnow()])
     return
 
 
@@ -107,7 +107,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     :return:
     """
     fig = plt.figure(constrained_layout=False, figsize=(18, 13))
-    fig.suptitle('Realtime MEQ: {}'.format(datetime.now()), fontsize=20)
+    fig.suptitle('Realtime MEQ: {} UTC'.format(datetime.utcnow()), fontsize=20)
     gs = GridSpec(ncols=18, nrows=13, figure=fig)
     axes_map = fig.add_subplot(gs[:9, :9])
     axes_3D = fig.add_subplot(gs[:9, 9:], projection='3d')
@@ -115,18 +115,19 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     # Convert to HMC system
     catalog = [ev for ev in catalog if len(ev.origins) > 0]
     catalog.sort(key=lambda x: x.origins[-1].time)
-    endtime = catalog[-1].origins[-1].time
-    starttime = endtime - 3600
-    cat_time = [ev for ev in catalog if ev.origins[-1].time > starttime]
+    endtime = datetime.utcnow()
+    starttime = endtime - timedelta(seconds=3600)
     locs = [(ev.preferred_origin().latitude,
              ev.preferred_origin().longitude,
              ev.preferred_origin().depth) for ev in catalog]# if
             # ev.comments[-1].text == 'Classification: passive']
     hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
                 for pt in locs]
-    colors = ['lightgray' if ev.origins[-1].time < starttime else 'dodgerblue'
+    colors = ['lightgray' if ev.origins[-1].time.datetime < starttime else 'dodgerblue'
               for ev in catalog]
-    times = [ev.preferred_origin().time.datetime for ev in cat_time]
+    times = [ev.preferred_origin().time.datetime for ev in catalog]
+    print(times)
+    print(starttime, endtime)
     mags = []
     for ev in catalog:
         if len(ev.magnitudes) > 0:

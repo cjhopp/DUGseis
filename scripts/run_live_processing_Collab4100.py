@@ -21,6 +21,7 @@ import yaml
 import numpy as np
 
 from glob import glob
+from datetime import datetime
 
 # Despiking imports
 from eqcorrscan.utils.timer import Timer
@@ -52,6 +53,16 @@ util.setup_logging_to_file(
     log_level="info",
 )
 logger = logging.getLogger(__name__)
+
+FILENAME_REGEX = re.compile(
+    r"""
+^                                                              # Beginning of string
+vbox_(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{4})         # System creation time as capture groups
+.*                                                             # Rest of name
+$                                                              # End of string.
+""",
+    re.VERBOSE,
+)
 
 """
 n.b. Bad channels in the Vibbox data (commented out in the lists below):
@@ -395,9 +406,13 @@ def launch_processing(project):
         # Plot catalog data
         catalog = project.db.get_objects(object_type="Event")
         boreholes = project.config['graphical_interface']['3d_view']['line_segments']
-        plot_all(catalog, boreholes,
-                 global_to_local=project.global_to_local_coordinates,
-                 outfile=project.config['paths']['output_figure'])
+        try:
+            plot_all(catalog, boreholes,
+                     global_to_local=project.global_to_local_coordinates,
+                     outfile=project.config['paths']['output_figure'])
+        except IndexError as e:
+            print(e)
+            pass
         # Dump catalog to file
         project.db.dump_as_quakeml_files(
             folder=project.config['paths']['out_catalog_folder'])
@@ -412,7 +427,7 @@ all_folders = [
     pathlib.Path(i).absolute() for i in yaml_template["paths"]["asdf_folders"]
 ]
 
-ping_interval_in_seconds = 2.5
+ping_interval_in_seconds = 5
 
 while True:
     try:
@@ -431,14 +446,17 @@ while True:
 
 launch_processing(project=project)
 
+sd = project.config['temporal_range']['start_time'].datetime
 # These files have already been processed.
 already_processed_files = set([p.absolute() for p in project.waveforms._files.keys()])
-
 # Monitor the folders and launch the processing again.
 while True:
     all_available_files = set()
     for p in all_folders:
-        all_available_files = all_available_files.union(p.glob("vbox_*.dat"))
+        new_files = set(
+            [p.absolute() for p in p.glob("vbox_*.dat")
+             if obspy.UTCDateTime(*[int(i) for i in re.match(FILENAME_REGEX, p.stem).groups()]).datetime >= sd])
+        all_available_files = all_available_files.union(new_files)
 
     new_files = all_available_files.difference(already_processed_files)
     if not new_files:
