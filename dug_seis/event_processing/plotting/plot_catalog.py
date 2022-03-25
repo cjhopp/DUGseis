@@ -126,8 +126,6 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
     colors = ['lightgray' if ev.origins[-1].time.datetime < starttime else 'dodgerblue'
               for ev in catalog]
     times = [ev.preferred_origin().time.datetime for ev in catalog]
-    print(times)
-    print(starttime, endtime)
     mags = []
     for ev in catalog:
         if len(ev.magnitudes) > 0:

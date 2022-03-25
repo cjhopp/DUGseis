@@ -47,9 +47,9 @@ from dug_seis.event_processing.plotting.plot_catalog import plot_all
 
 # The logging is optional, but useful.
 util.setup_logging_to_file(
-    # folder=".",
+    folder="/home/sigmav/data2/dug-seis_logs/",
     # If folder is not specified it will not log to a file but only to stdout.
-    folder=None,
+    # folder=None,
     log_level="info",
 )
 logger = logging.getLogger(__name__)
@@ -219,29 +219,57 @@ def launch_processing(project):
     for interval_start, interval_end in tqdm.tqdm(intervals):
         # Run the trigger only on a few waveforms.
         print('Interval: {} {}'.format(interval_start, interval_end))
-        st_all = project.waveforms.get_waveforms(
-            channel_ids=[
-                'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
-                'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
-                'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
-                'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
-                'CB.AML2..XNY', #'CB.AML2..XNZ',
-                'CB.AML3..XNX', 'CB.AML3..XNY',
-                'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
-                'CB.AMU1..XNX', #'CB.AMU1..XNY',
-                'CB.AMU1..XNZ', 'CB.AMU2..XNX',
-                'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
-                'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
-                'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
-                'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
-                'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
-                'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
-                'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
-                'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ',
-                'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..'],
-            start_time=interval_start,
-            end_time=interval_end,
-        )
+        # Catch file that isn't fully written
+        try:
+            st_all = project.waveforms.get_waveforms(
+                channel_ids=[
+                    'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                    'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                    'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+                    'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+                    'CB.AML2..XNY', #'CB.AML2..XNZ',
+                    'CB.AML3..XNX', 'CB.AML3..XNY',
+                    'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+                    'CB.AMU1..XNX', #'CB.AMU1..XNY',
+                    'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                    'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+                    'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+                    'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+                    'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+                    'CB.DML3..XNZ', #'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                    'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+                    'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+                    'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', #'CB.DMU4..XNZ',
+                    'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..'],
+                start_time=interval_start,
+                end_time=interval_end,
+            )
+        except AssertionError as e:
+            time.sleep(32.)  # File still being written
+            st_all = project.waveforms.get_waveforms(
+                channel_ids=[
+                    'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+                    'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+                    'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+                    'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+                    'CB.AML2..XNY',  # 'CB.AML2..XNZ',
+                    'CB.AML3..XNX', 'CB.AML3..XNY',
+                    'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+                    'CB.AMU1..XNX',  # 'CB.AMU1..XNY',
+                    'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+                    'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+                    'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+                    'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+                    'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+                    'CB.DML3..XNZ',  # 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+                    'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+                    'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+                    'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY',  # 'CB.DMU4..XNZ',
+                    'CB.CMon..', 'CB.CTrig..', 'CB.CEnc..', 'CB.PPS..'],
+                start_time=interval_start,
+                end_time=interval_end,
+            )
+
         if len(st_all) == 0:
             print('No waveform data found')
             continue
@@ -255,18 +283,9 @@ def launch_processing(project):
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
         # # Depike triggering trace
         cc_thresh = 0.7
-        # Track parallel processes and eliminate those spawned during despike on completion
-        # current_process = psutil.Process()
-        # subproc_before = set([p.pid for p in current_process.children(recursive=True)])
         results = Parallel(n_jobs=15)(
             delayed(despike)(tr, spike_streams, cc_thresh)
             for tr in st_triggering)
-        # # Kill remaining processes
-        # subproc_after = set([p.pid for p in current_process.children(recursive=True)])
-        # for subproc in subproc_after - subproc_before:
-        #     print('Killing process with pid {}'.format(subproc))
-        #     psutil.Process(subproc).terminate()
-        #
         st_triggering = obspy.Stream(traces=[r for r in results])
         # Preprocess
         print('Preprocessing')
@@ -345,7 +364,7 @@ def launch_processing(project):
                 )
 
             # We want at least three picks, otherwise we don't designate it an event.
-            if len(picks) < 3:
+            if len(picks) < 6:
                 # Optionally save the picks to the database as unassociated picks.
                 # if picks:
                 #    project.db.add_object(picks)
@@ -410,7 +429,7 @@ def launch_processing(project):
             plot_all(catalog, boreholes,
                      global_to_local=project.global_to_local_coordinates,
                      outfile=project.config['paths']['output_figure'])
-        except IndexError as e:
+        except (IndexError, ValueError) as e:
             print(e)
             pass
         # Dump catalog to file

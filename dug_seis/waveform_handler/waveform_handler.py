@@ -22,8 +22,10 @@ DUGSeis.
 import functools
 import hashlib
 import logging
+import os.path
 import re
 import pathlib
+import time
 import typing
 
 import numpy as np
@@ -49,6 +51,32 @@ $                                                              # End of string.
 )
 
 
+@functools.lru_cache(maxsize=3)
+def _get_open_vibbox_file(filename: pathlib.Path,
+                          seeds: typing.Tuple[str]) -> obspy.Stream:
+    """
+    Get an open ASDF file.
+
+    Use a LRU cache to get fast repeated file accesses.
+    """
+    return vibbox_read(filename, seeds, debug=0)
+
+
+@functools.lru_cache(maxsize=50)
+def _get_channel_from_stream(
+    stream: obspy.Stream, channel_id: str
+) -> obspy.Trace:
+    """
+    Get an open ASDF file.
+
+    Use a LRU cache to get fast repeated file accesses.
+    """
+    # Get files - already cached.
+    tr = stream.select(id=channel_id)
+    return tr
+
+
+
 class WaveformHandler:
     """
     Central class handling waveform access for DUGseis.
@@ -62,6 +90,7 @@ class WaveformHandler:
         start_time: Limit temporal range.
         end_time: Limit temporal range.
         seeds: List of SEED ids in order they're written to the binary file
+        existing_caches: List of already read caches
     """
 
     def __init__(
@@ -71,7 +100,8 @@ class WaveformHandler:
         index_sampling_rate_in_hz: int,
         start_time: obspy.UTCDateTime,
         end_time: obspy.UTCDateTime,
-        seeds: [str]
+        seeds: [str],
+        existing_caches: typing.Optional[typing.Dict] = None,
     ):
         self._start_time = start_time
         self._end_time = end_time
@@ -79,8 +109,10 @@ class WaveformHandler:
         self._waveform_folders = [pathlib.Path(i) for i in waveform_folders]
         self._cache_folder = pathlib.Path(cache_folder)
         self.seeds = seeds
+        self.receivers = set(seeds)
         self._open_folder()
-        self._build_cache()
+        # Without hdf5, this is just reading each file twice
+        self._build_cache(existing_caches=existing_caches)
 
     @property
     def starttime(self) -> obspy.UTCDateTime:
@@ -96,19 +128,19 @@ class WaveformHandler:
         """
         return max(t[1] for t in self._time_ranges)
 
-    @property
-    def receivers(self) -> typing.List[str]:
-        """
-        List of all receivers.
-        """
-        return self._cache["receivers"]
+    # @property
+    # def receivers(self) -> typing.List[str]:
+    #     """
+    #     List of all receivers.
+    #     """
+    #     return self._cache["receivers"]
 
     @property
     def channel_list(self) -> typing.List[str]:
         """
         Get a list of all channels.
         """
-        return self._cache["receivers"]
+        return self.receivers
 
     def _get_index_for_channel(self, channel_id: str) -> int:
         """
@@ -124,7 +156,7 @@ class WaveformHandler:
         """
         Sampling rate in Hz.
         """
-        return self._cache["data_sampling_rate_in_hz"]
+        return 100000.
 
     @property
     def dt(self) -> float:
@@ -163,46 +195,30 @@ class WaveformHandler:
         """
         return self._cache["cache_dt_ns"]
 
-    @functools.lru_cache(maxsize=5)
-    def _get_open_vibbox_file(self, filename: pathlib.Path) -> obspy.Stream:
-        """
-        Get an open ASDF file.
-
-        Use a LRU cache to get fast repeated file accesses.
-        """
-        return vibbox_read(filename, self.seeds, debug=0)
-
-
-    @functools.lru_cache(maxsize=200)
-    def _get_channel_from_stream(
-        self, stream: obspy.Stream, channel_id: str
-    ) -> obspy.Trace:
-        """
-        Get an open ASDF file.
-
-        Use a LRU cache to get fast repeated file accesses.
-        """
-        # Get files - already cached.
-        tr = stream.select(id=channel_id)
-        return tr
-
-    def _build_cache(self):
+    def _build_cache(self, existing_caches: typing.Optional[typing.Dict] = None):
         self._cache_folder.mkdir(parents=True, exist_ok=True)
 
-        caches = []
+        caches = {}
 
         filename_receivers_map = {}
 
         for name, info in tqdm.tqdm(
             self._files.items(), desc="Creating/updating cache"
         ):
-
-            single_file_cache = self._cache_single_file(filename=name, info=info)
-            caches.append(single_file_cache)
-            filename_receivers_map[name] = set(single_file_cache["receivers"])
+            # if existing_caches is None or name not in existing_caches:
+            #     try:
+            #         single_file_cache = self._cache_single_file(filename=name, info=info)
+            #     except AssertionError as e:
+            #         time.sleep(32.)  # File not written completely
+            #         single_file_cache = self._cache_single_file(filename=name, info=info)
+            # else:
+            #     single_file_cache = existing_caches[name]
+            # caches[name] = single_file_cache
+            filename_receivers_map[name] = set(self.receivers)
 
         # Combine everything into a single cache.
-        self._cache = combine_caches(caches=caches)
+        # self._individual_caches = caches
+        # self._cache = combine_caches(caches=list(caches.values()))
 
         # Keep track of which file stores which receivers.
         self._filename_receivers_map = filename_receivers_map
@@ -309,7 +325,6 @@ class WaveformHandler:
         sr = set(i["index_sampling_rate_in_hz"] for i in cache.values())
         sr_d = set(i["data_sampling_rate_in_hz"] for i in cache.values())
         st = set(i["start_time_stamp_in_ns"] for i in cache.values())
-        print(st)
         assert len(sr) == 1
         assert len(st) == 1
 
@@ -528,7 +543,12 @@ class WaveformHandler:
 
         st = obspy.Stream()
         for f in files:
-            st += self._get_open_vibbox_file(f).copy()
+            # Wait until the file is fully written to read
+            if os.path.getsize(f) != 819200150:
+                print('{} not fully written yet'.format(f))
+                how_much_left = 1 - (os.path.getsize(f) / 819200150)
+                time.sleep((how_much_left * 32.) + 2.)
+            st += _get_open_vibbox_file(filename=f, seeds=tuple(self.seeds))
         # Take only the channels we want
         rms = [tr for tr in st if tr.id not in channel_ids]
         for rm in rms:

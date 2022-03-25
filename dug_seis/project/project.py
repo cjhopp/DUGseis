@@ -270,13 +270,20 @@ class DUGSeisProject:
         self.__db = DB(url=self.config["paths"]["database"])
 
     def _load_waveforms(self):
+        # Reuse caches if possible.
+        if self.__waveform_handler is not None:
+            existing_caches = self.__waveform_handler._individual_caches
+        else:
+            existing_caches = None
+
         wh = WaveformHandler(
             waveform_folders=self.config["paths"]["asdf_folders"],
             cache_folder=self.config["paths"]["cache_folder"],
             index_sampling_rate_in_hz=100,
             start_time=self.config["temporal_range"]["start_time"],
             end_time=self.config["temporal_range"]["end_time"],
-            seeds=self.config["vibbox"]["seeds"]
+            seeds=self.config["vibbox"]["seeds"],
+            existing_caches=existing_caches
         )
 
         # Time to check that the data also corresponds to the StationXML

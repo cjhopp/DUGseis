@@ -28,6 +28,8 @@ import obspy
 import schema
 import tqdm
 
+from logging import handlers
+
 
 class _TqdmLoggingHandler(logging.StreamHandler):
     """
@@ -76,7 +78,7 @@ def setup_logging_to_file(
     if folder:
         folder = pathlib.Path(folder)
         now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        fh = logging.handlers.RotatingFileHandler(folder / f"dug-seis_{now}.log")
+        fh = handlers.RotatingFileHandler(folder / f"dug-seis_{now}.log")
         fh.setLevel(log_level.upper())
         fh.setFormatter(formatter)
         logger.addHandler(fh)
