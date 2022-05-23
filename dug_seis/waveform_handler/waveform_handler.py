@@ -547,7 +547,8 @@ class WaveformHandler:
             if os.path.getsize(f) != 819200150:
                 print('{} not fully written yet'.format(f))
                 how_much_left = 1 - (os.path.getsize(f) / 819200150)
-                time.sleep((how_much_left * 32.) + 2.)
+                # time.sleep((how_much_left * 32.) + 2.)
+                time.sleep(60.)
             st += _get_open_vibbox_file(filename=f, seeds=tuple(self.seeds))
         # Take only the channels we want
         rms = [tr for tr in st if tr.id not in channel_ids]
@@ -560,7 +561,6 @@ class WaveformHandler:
         for tr in st:
             tr.stats.delta = list(deltas)[0]
         st.merge()
-
         if return_trace:
             return st
 

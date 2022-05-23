@@ -55,7 +55,8 @@ def vibbox_read(fname, seeds, debug=0):
                         count=BUFFER_SIZE * NUM_OF_BUFFERS)
         try:
             A = A.reshape(int(len(A) / no_channels), no_channels)
-        except ValueError:
+        except ValueError as e:
+            print(e)
             # File was interrupted mid-write. Return empty stream
             return Stream()
     # Sanity check on number of channels provided in yaml

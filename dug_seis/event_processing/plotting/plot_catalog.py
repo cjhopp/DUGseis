@@ -26,6 +26,15 @@ from datetime import datetime, timedelta
 
 from matplotlib.gridspec import GridSpec
 
+# Zone 7 start/end
+z7_start = np.array([1250.02033327, -876.09451028, 328.41040807])
+z7_end = np.array([1251.6751636, -874.58967042, 327.82095658])
+z7 = np.vstack([z7_start, z7_end])
+
+z1_start = np.array([1239.68287212, -885.63997146,  331.55923477])
+z1_end = np.array([1241.42805389, -884.04965582,  330.95011331])
+z1 = np.vstack([z1_start, z1_end])
+
 
 def plot_3D(locs, boreholes, colors, mags, axes):
     x, y, z = zip(*locs)
@@ -41,6 +50,9 @@ def plot_3D(locs, boreholes, colors, mags, axes):
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], bh[:, 2], color=color,
                   linewidth=linewidth)
+    # Plot Zone 1, 7
+    axes.plot(z7[:, 0], z7[:, 1], z7[:, 2], color='purple', linewidth=2.5)
+    axes.plot(z1[:, 0], z1[:, 1], z1[:, 2], color='purple', linewidth=2.5)
     sizes = (mags + 9)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  np.array(z)[mag_inds], marker='o',
@@ -86,6 +98,8 @@ def plot_mapview(locs, boreholes, colors, mags, axes):
             color = 'dimgray'
             linewidth = 0.8
         axes.plot(bh[:, 0], bh[:, 1], color=color, linewidth=linewidth)
+    axes.plot(z7[:, 0], z7[:, 1], color='purple', linewidth=2.5)
+    axes.plot(z1[:, 0], z1[:, 1], color='purple', linewidth=2.5)
     x, y, z = zip(*locs)
     sizes = (mags + 9)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
@@ -123,7 +137,7 @@ def plot_all(catalog, boreholes, global_to_local, outfile):
             # ev.comments[-1].text == 'Classification: passive']
     hmc_locs = [global_to_local(latitude=pt[0], longitude=pt[1], depth=pt[2])
                 for pt in locs]
-    colors = ['lightgray' if ev.origins[-1].time.datetime < starttime else 'dodgerblue'
+    colors = ['whitesmoke' if ev.origins[-1].time.datetime < starttime else 'dodgerblue'
               for ev in catalog]
     times = [ev.preferred_origin().time.datetime for ev in catalog]
     mags = []

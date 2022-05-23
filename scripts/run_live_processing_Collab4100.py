@@ -11,6 +11,7 @@ import pathlib
 import re
 import gc
 import time
+import shutil
 import psutil
 import tracemalloc
 
@@ -21,6 +22,7 @@ import yaml
 import numpy as np
 
 from glob import glob
+from tempfile import mkstemp
 from datetime import datetime
 
 # Despiking imports
@@ -114,6 +116,21 @@ mag_chans = [#'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
                  'CB.DMU3..XNX', 'CB.DMU3..XNY', 'CB.DMU3..XNZ',
                  #'CB.DMU4..XNX']
                 ]
+
+def edit_config(config):
+    """Edit config file start time to current time"""
+    fd, abspath = mkstemp()
+    with open(fd, 'w') as f1:
+        with open(config, 'r') as f2:
+            for ln in f2:
+                if ln.startswith('  start_time'):
+                    f1.write('  start_time: {}\n'.format(obspy.UTCDateTime().now()))
+                else:
+                    f1.write(ln)
+    shutil.move(abspath, config)
+    return
+
+
 def _interp_gap(data, peak_loc, interp_len, mad, mean):
     """
     Internal function for filling gap with linear interpolation
@@ -283,9 +300,18 @@ def launch_processing(project):
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
         # # Depike triggering trace
         cc_thresh = 0.7
+        # # Track parallel processes and eliminate those spawned during despike on completion
+        # current_process = psutil.Process()
+        # subproc_before = set([p.pid for p in current_process.children(recursive=True)])
         results = Parallel(n_jobs=15)(
             delayed(despike)(tr, spike_streams, cc_thresh)
             for tr in st_triggering)
+        # # Kill remaining processes
+        # subproc_after = set([p.pid for p in current_process.children(recursive=True)])
+        # for subproc in subproc_after - subproc_before:
+        #     print('Killing process with pid {}'.format(subproc))
+        #     psutil.Process(subproc).terminate()
+
         st_triggering = obspy.Stream(traces=[r for r in results])
         # Preprocess
         print('Preprocessing')
@@ -438,8 +464,12 @@ def launch_processing(project):
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
+config_path = "/home/sigmav/DUGseis/scripts/live_processing_Collab4100_3-9-22.yaml"
 
-with open("/home/sigmav/DUGseis/scripts/live_processing_Collab4100_3-9-22.yaml", "r") as fh:
+# Change start time to current time
+edit_config(config_path)
+
+with open(config_path, "r") as fh:
     yaml_template = yaml.load(fh, Loader=yaml.SafeLoader)
 
 all_folders = [
