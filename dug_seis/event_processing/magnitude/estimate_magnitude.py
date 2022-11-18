@@ -296,14 +296,21 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     str.detrend('linear')
     str.detrend('simple')
     str.resample(sampling_rate=40000.)
+    rms = [tr for tr in str if tr.stats.station[0] in ['T', 'C', 'P']]
+    for r in rms:
+        str.traces.remove(r)
     str.remove_response(inventory=inventory, output="ACC",
                         water_level=600, plot=False,
                         pre_filt=[20, 30, 40000, 50000])
-    x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
-                              depth=o.depth)
+    x, y, z = global_to_local(point=(o.latitude, o.longitude, o.depth))
+    # x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
+    #                           depth=o.depth)
     M0s = []
     for pk in event.picks:
+        if pk.phase_hint == 'S':
+            continue
         sx, sy, sz = coordinates[pk.waveform_id.id]
+        print(x, y, z, sx, sy, sz)
         # Distance in km
         distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2) / 1000.
         print('Distance {}'.format(distance))

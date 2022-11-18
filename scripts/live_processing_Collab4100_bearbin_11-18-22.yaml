@@ -1,0 +1,116 @@
+version: 13
+
+meta:
+  project_name: Collab4100_stim
+  project_location: SURF_4100
+  project_description: Collab4100_stim
+
+local_coordinate_system:
+  epsg_code: 26713
+  translation_vector: [598420.3842806489, 4912272.275375654, 0.0]
+
+paths:
+  asdf_folders:
+    - '/bear0-data/SURF_4100_MonitoringData/Synology48/VBox/SURF4100_FlowTesting/'
+  stationxml_folders:
+    - '/global/home/users/chopp/chet-collab/single-channel-inventories'
+  spike_mseed: '/global/home/users/chopp/chet-collab/wavs/ERT_spikes'
+  database: 'sqlite:///global/home/users/chopp/chet-collab/Collab_live_data/db.sqlite'
+  cache_folder: '/global/home/users/chopp/chet-collab/Collab_live_data/cache'
+  out_wav_folder: '/global/home/users/chopp/chet-collab/realtime_wav_snippets'
+  out_catalog_folder: '/global/home/users/chopp/chet-collab/realtime_catalog'
+  output_figure: '/global/home/users/chopp/chet-collab/meq_plots/realtime_figure.png'
+
+# Must cover the whole range of the experiment, e.g. more than the expected
+# start + end time for the live test case.
+temporal_range:
+  start_time: 2022-06-5T15:53:35.350500Z
+  end_time: 2022-6-1T23:59:59.999Z
+
+graphical_interface:
+  classifications:
+    - passive
+    - active
+    - electronic
+    - unknown
+    - random
+  pick_types:
+    - P
+    - S
+  uncertainties_in_ms:
+    - 0.00001
+    - 0.000025
+    - 0.00005
+  3d_view:
+    # Helpful to distinguish newer from older events.
+    color_events: plasma
+    size_events_in_pixel: 7
+    size_channels_in_pixel: 3
+    # Greenish color for channels.
+    color_channels: [0.1, 0.9, 0.0, 0.4]
+    # Optionally plot some line segments. Useful to show certain features
+    # like boreholes in the 3-D plot. Coordinates are in the coordinate system
+    # defined above.
+    line_segments:
+      - [[1216.5915216,  -863.204268 ,   342.860376], [1262.47336552,  -869.60259973,   303.90384621]]  # AML
+      - [[1216.9502712,  -862.5937536,   343.4983224], [1275.84554259,  -873.52038189,   336.22735315]]  # AMU
+      - [[1207.35006546,  -872.91539016,   343.20528738], [1245.07770318,  -896.64550272,   311.10917255]]  # DML
+      - [[1207.0762752,  -872.7051888,   343.7052816], [1256.54312887,  -896.68160811,   343.28765409]]  # DMU
+      - [[1208.0979648,  -914.21712  ,   343.3431792], [1263.25897594,  -864.05579142,   323.69479614]]  # TC
+      - [[1207.2600696,  -913.6949976,   343.0901952], [1265.13238891,  -871.32293726,   315.58431625]]  # TL
+      - [[1207.4844024,  -913.7846088,   343.3108704], [1256.39443737,  -856.83006332,   328.73330504]]  # TN
+      - [[1208.2832832,  -914.939496 ,   343.2392424], [1272.50726326,  -869.47376351,   323.33005783]]  # TS
+      - [[1208.240916 ,  -914.6246376,   343.5135624], [1266.79937059,  -865.80735876,   337.47416742]]  # TU
+    # Width and color of the line segments.
+    line_segments_width: 4.0
+    line_segments_color: [0.0, 0.0, 1.0, 1.0]
+filters:
+  - filter_id: smi:local/bandpass_causal_1000_12000
+    filter_settings:
+      filter_type: butterworth_bandpass
+      highpass_frequency_in_hz: 1000.0
+      lowpass_frequency_in_hz: 12000.0
+      filter_corners: 4
+      zerophase: false
+  - filter_id: smi:local/bandpass_acausal_1000_12000
+    filter_settings:
+      filter_type: butterworth_bandpass
+      highpass_frequency_in_hz: 1000.0
+      lowpass_frequency_in_hz: 12000.0
+      filter_corners: 2
+      zerophase: true
+  # Example for a high-pass filter.
+  - filter_id: smi:local/highpass_acausal_2000
+    filter_settings:
+      filter_type: butterworth_highpass
+      frequency_in_hz: 2000.0
+      filter_corners: 4
+      zerophase: true
+  # Example for a low-pass filter.
+  - filter_id: smi:local/lowpass_acausal_500
+    filter_settings:
+      filter_type: butterworth_lowpass
+      frequency_in_hz: 500.0
+      filter_corners: 4
+      zerophase: true
+
+
+# Full list of each channel in the Vibbox binary. Order written.
+vibbox:
+  seeds:
+    [ 'CB.AML1..XNX', 'CB.AML1..XNY', 'CB.AML1..XNZ', 'CB.AML2..XNX',
+      'CB.AML2..XNY', 'CB.AML2..XNZ', 'CB.AML3..XNX', 'CB.AML3..XNY',
+      'CB.AML3..XNZ', 'CB.AML4..XNX', 'CB.AML4..XNY', 'CB.AML4..XNZ',
+      'CB.AMU1..XNX', 'CB.AMU1..XNY', 'CB.AMU1..XNZ', 'CB.AMU2..XNX',
+      'CB.AMU2..XNY', 'CB.AMU2..XNZ', 'CB.AMU3..XNX', 'CB.AMU3..XNY',
+      'CB.AMU3..XNZ', 'CB.AMU4..XNX', 'CB.AMU4..XNY', 'CB.AMU4..XNZ',
+      'CB.DML1..XNX', 'CB.DML1..XNY', 'CB.DML1..XNZ', 'CB.DML2..XNX',
+      'CB.DML2..XNY', 'CB.DML2..XNZ', 'CB.DML3..XNX', 'CB.DML3..XNY',
+      'CB.DML3..XNZ', 'CB.DML4..XNX', 'CB.DML4..XNY', 'CB.DML4..XNZ',
+      'CB.DMU1..XNX', 'CB.DMU1..XNY', 'CB.DMU1..XNZ', 'CB.DMU2..XNX',
+      'CB.DMU2..XNY', 'CB.DMU2..XNZ', 'CB.DMU3..XNX', 'CB.DMU3..XNY',
+      'CB.DMU3..XNZ', 'CB.DMU4..XNX', 'CB.DMU4..XNY', 'CB.DMU4..XNZ',
+      'CB.TS02..XDH', 'CB.TS04..XDH', 'CB.TS06..XDH', 'CB.TS08..XDH',
+      'CB.TS10..XDH', 'CB.TS12..XDH', 'CB.TS14..XDH', 'CB.TS16..XDH',
+      'CB.TS18..XDH', 'CB.TS20..XDH', 'CB.TS22..XDH', 'CB.TS24..XDH',
+      'CB.PPS..', 'CB.CEnc..', 'CB.CMon..', 'CB.CTrig..' ]
