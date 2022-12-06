@@ -28,6 +28,14 @@ import matplotlib.pyplot as plt
 
 
 def vibbox_read(fname, seeds, debug=0):
+    """
+    Read function for raw VIBbox, 32-bit binary data files
+
+    :param fname: Name of the file to read
+    :param seeds: Iterable of the SEED ids in order stored on file
+    :param debug: Debugging flag, basically to check time signal is being read
+    :return:
+    """
     network, stations, locations, channels = zip(*[s.split('.') for s in seeds])
     network = network[0]
     # Find channel PPS (pulse per second)

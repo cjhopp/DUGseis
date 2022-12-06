@@ -464,7 +464,7 @@ def launch_processing(project):
         logger.info("DONE.")
         logger.info(f"Found {total_event_count} events.")
 
-config_path = "/global/home/users/chopp/DUGseis/scripts/live_processing_Collab4100_bearbin_11-18-2022.yaml"
+config_path = "/global/home/users/chopp/DUGseis/scripts/live_processing_Collab4100_bearbin_11-18-22.yaml"
 
 # Change start time to current time
 # edit_config(config_path)
