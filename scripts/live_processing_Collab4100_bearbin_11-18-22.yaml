@@ -25,7 +25,7 @@ paths:
 # start + end time for the live test case.
 temporal_range:
   start_time: 2022-06-5T15:53:35.350500Z
-  end_time: 2022-6-1T23:59:59.999Z
+  end_time: 2022-9-1T23:59:59.999Z
 
 graphical_interface:
   classifications:
