@@ -449,15 +449,15 @@ def launch_processing(project):
         )
         total_event_count += added_event_count
         # Plot catalog data
-        catalog = project.db.get_objects(object_type="Event")
-        boreholes = project.config['graphical_interface']['3d_view']['line_segments']
-        try:
-            plot_all(catalog, boreholes,
-                     global_to_local=project.global_to_local_coordinates,
-                     outfile=project.config['paths']['output_figure'])
-        except (IndexError, ValueError) as e:
-            print(e)
-            pass
+        # catalog = project.db.get_objects(object_type="Event")
+        # boreholes = project.config['graphical_interface']['3d_view']['line_segments']
+        # try:
+        #     plot_all(catalog, boreholes,
+        #              global_to_local=project.global_to_local_coordinates,
+        #              outfile=project.config['paths']['output_figure'])
+        # except (IndexError, ValueError) as e:
+        #     print(e)
+        #     pass
         # Dump catalog to file
         project.db.dump_as_quakeml_files(
             folder=project.config['paths']['out_catalog_folder'])
