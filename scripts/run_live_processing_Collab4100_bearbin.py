@@ -217,7 +217,7 @@ def despike(tr, temp_streams, cc_thresh):
         try:
             template_remove(new_tr, temp_tr, cc_thresh, windowlength=window,
                             interp_len=window, mad=mad, mean=mean)
-        except CorrelationError:
+        except (CorrelationError, AssertionError):
             return new_tr
     return new_tr
 
