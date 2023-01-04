@@ -516,7 +516,7 @@ class WaveformHandler:
                     npts=10000000000000,
                     return_trace=True,
                 )
-        except ValueError as e:
+        except (ValueError, TypeError) as e:
             st = obspy.Stream()
         return st
 
