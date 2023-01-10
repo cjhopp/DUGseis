@@ -446,7 +446,7 @@ def launch_processing(project):
             except OperationalError:
                 # database locked error, wait to see if it gets cleared
                 time.sleep(1)
-                project.db.connection.commit()
+                project.db._backend.connection.commit()
             del st_event
         del st_triggering, st_mags
         gc.collect()
