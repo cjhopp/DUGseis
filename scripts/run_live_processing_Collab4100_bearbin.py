@@ -47,6 +47,8 @@ from dug_seis.event_processing.location.locate_homogeneous import (
 )
 from dug_seis.event_processing.plotting.plot_catalog import plot_all
 
+from sqlite3 import OperationalError
+
 # The logging is optional, but useful.
 util.setup_logging_to_file(
     folder="/global/home/users/chopp/chet-collab/dug-seis_logs/",
@@ -439,7 +441,12 @@ def launch_processing(project):
             ]
             # Add the event to the project.
             added_event_count += 1
-            project.db.add_object(event)
+            try:
+                project.db.add_object(event)
+            except OperationalError:
+                # database locked error, wait to see if it gets cleared
+                wait(1)
+                project.db.add_object(event)
             del st_event
         del st_triggering, st_mags
         gc.collect()
