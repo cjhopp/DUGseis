@@ -5,7 +5,6 @@ to monitor certain directories and process newly incoming data.
 Parts of this could be wrapped in other functions - that really depends on how
 it will be used in the end.
 """
-import os
 import copy
 import logging
 import pathlib
@@ -446,7 +445,7 @@ def launch_processing(project):
                 project.db.add_object(event)
             except OperationalError:
                 # database locked error, wait to see if it gets cleared
-                os.wait(1)
+                time.sleep(1)
                 project.db.add_object(event)
             del st_event
         del st_triggering, st_mags
