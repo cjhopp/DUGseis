@@ -84,6 +84,7 @@ def vibbox_read(fname, seeds, debug=0):
         # Condition where PPS not recorded properly
         if samp_to_first_full_second > 101000:
             print('Cannot read time signal')
+            print(fname)
             return
         # If we start during the time pulse, use end of pulse for timing
         if samp_to_first_full_second > 90000:
