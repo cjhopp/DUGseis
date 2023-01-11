@@ -59,7 +59,9 @@ def _get_open_vibbox_file(filename: pathlib.Path,
 
     Use a LRU cache to get fast repeated file accesses.
     """
-    return vibbox_read(filename, seeds, debug=0)
+    st = vibbox_read(filename, seeds, debug=0)
+    print(type(st))
+    return st
 
 
 @functools.lru_cache(maxsize=50)
@@ -546,12 +548,12 @@ class WaveformHandler:
 
         st = obspy.Stream()
         for f in files:
-            # Wait until the file is fully written to read
-            if os.path.getsize(f) != 819200150:
-                print('{} not fully written yet'.format(f))
-                how_much_left = 1 - (os.path.getsize(f) / 819200150)
-                # time.sleep((how_much_left * 32.) + 2.)
-                time.sleep(60.)
+            # # Wait until the file is fully written to read
+            # if os.path.getsize(f) != 819200150:
+            #     print('{} not fully written yet'.format(f))
+            #     how_much_left = 1 - (os.path.getsize(f) / 819200150)
+            #     # time.sleep((how_much_left * 32.) + 2.)
+            #     time.sleep(60.)
             st += _get_open_vibbox_file(filename=f, seeds=tuple(self.seeds))
         # Take only the channels we want
         rms = [tr for tr in st if tr.id not in channel_ids]
