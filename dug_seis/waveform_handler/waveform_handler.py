@@ -508,16 +508,16 @@ class WaveformHandler:
             end_time: The end time of the requested data.
         """
         print(start_time, end_time)
-        try:
-            st = self.get_waveform_data(
-                    channel_ids=channel_ids,
-                    start_time=start_time,
-                    end_time=end_time,
-                    npts=10000000000000,
-                    return_trace=True,
-                )
-        except (ValueError, TypeError) as e:
-            st = obspy.Stream()
+        # try:
+        st = self.get_waveform_data(
+                channel_ids=channel_ids,
+                start_time=start_time,
+                end_time=end_time,
+                npts=10000000000000,
+                return_trace=True,
+            )
+        # except (ValueError, TypeError) as e:
+        #     st = obspy.Stream()
         return st
 
     def get_waveform_data(
