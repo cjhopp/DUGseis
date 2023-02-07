@@ -20,7 +20,10 @@ import yaml
 
 import numpy as np
 
-from scipy.stats import median_absolute_deviation
+try:
+    from scipy.stats import median_absolute_deviation
+except ImportError:
+    from scipy.stats import median_abs_deviation
 from obspy import Stream, Trace, UTCDateTime
 from obspy.core.trace import Stats
 

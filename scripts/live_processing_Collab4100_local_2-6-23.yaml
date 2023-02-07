@@ -1,9 +1,9 @@
 version: 13
 
 meta:
-  project_name: Collab4100_stim
+  project_name: Collab4100_local
   project_location: SURF_4100
-  project_description: Collab4100_stim
+  project_description: Collab4100_local
 
 local_coordinate_system:
   epsg_code: 26713
@@ -11,20 +11,20 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/bear0-data/SURF_4100_MonitoringData/Synology48/VBox/SURF4100_FlowTesting/'
+    - '/media/chopp/Data1/chet-collab/wavs/4100/vbox_raw/'
   stationxml_folders:
-    - '/global/home/users/chopp/chet-collab/single-channel-inventories'
-  spike_mseed: '/global/home/users/chopp/chet-collab/wavs/ERT_spikes'
-  database: 'sqlite:///global/home/users/chopp/chet-collab/Collab_live_data/db_pt2.sqlite'
-  cache_folder: '/global/home/users/chopp/chet-collab/Collab_live_data/cache_pt2'
-  out_wav_folder: '/global/home/users/chopp/chet-collab/realtime_wav_snippets_pt2'
-  out_catalog_folder: '/global/home/users/chopp/chet-collab/realtime_catalog_pt2'
-  output_figure: '/global/home/users/chopp/chet-collab/meq_plots/realtime_figure.png'
+    - '/media/chopp/Data1/chet-collab/stations/4100/inventories/single-channel-updated'
+  spike_mseed: '/media/chopp/Data1/chet-collab/wavs/4100/ERT_spikes'
+  database: 'sqlite:///home/chopp/scratch/Collab_live_data/db_pt2.sqlite'
+  cache_folder: '/home/chopp/scratch/Collab_live_data/cache'
+  out_wav_folder: '/home/chopp/scratch/Collab_live_data/realtime_wav_snippets_pt2'
+  out_catalog_folder: '/home/chopp/scratch/Collab_live_data/realtime_catalog_pt2'
+  output_figure: '/home/chopp/scratch/Collab_live_data/meq_plots/realtime_figure.png'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-07-17T21:59:00.000Z
+  start_time: 2022-07-15T09:58:00.000Z
   end_time: 2022-9-1T23:59:59.999Z
 
 graphical_interface:

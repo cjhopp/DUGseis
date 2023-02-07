@@ -197,10 +197,13 @@ def est_magnitude_spectra(event, stream, coordinates, global_to_local, Vp, Vs, p
     stream.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
     stream.detrend('linear')
     stream.detrend('simple')
-    stream.resample(sampling_rate=40000.)
+    stream.resample(sampling_rate=40000., window='hann')
+    rms = [tr for tr in stream if tr.stats.station[0] in ['T', 'C', 'P']]
+    for r in rms:
+        stream.traces.remove(r)
     stream.remove_response(inventory=inventory, output="ACC",
-                            water_level=600, plot='test_resp.png',
-                            pre_filt=[20, 30, 40000, 50000])
+                           water_level=600, plot='test_resp.png',
+                           pre_filt=[20, 30, 40000, 50000])
     x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
                               depth=o.depth)
     M0s = []
@@ -290,21 +293,21 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     :return:
     """
     o = event.preferred_origin()
-    str = stream.copy()
+    st = stream.copy()
     # Remove response for stream
-    str.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
-    str.detrend('linear')
-    str.detrend('simple')
-    str.resample(sampling_rate=40000.)
-    rms = [tr for tr in str if tr.stats.station[0] in ['T', 'C', 'P']]
+    st.trim(starttime=o.time - 0.05, endtime=o.time + 0.1)
+    st.detrend('linear')
+    st.detrend('simple')
+    st.resample(sampling_rate=40000., window='hann')
+    rms = [tr for tr in st if tr.stats.station[0] in ['T', 'C', 'P']]
     for r in rms:
-        str.traces.remove(r)
-    str.remove_response(inventory=inventory, output="ACC",
-                        water_level=600, plot=False,
-                        pre_filt=[20, 30, 40000, 50000])
-    x, y, z = global_to_local(point=(o.latitude, o.longitude, o.depth))
-    # x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
-    #                           depth=o.depth)
+        st.traces.remove(r)
+    st.remove_response(inventory=inventory, output="ACC",
+                       water_level=600, plot=False,
+                       pre_filt=[20, 30, 40000, 50000])
+    # x, y, z = global_to_local(point=(o.latitude, o.longitude, o.depth))
+    x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
+                              depth=-float(o.extra.hmc_elev.value))
     M0s = []
     for pk in event.picks:
         if pk.phase_hint == 'S':
@@ -316,13 +319,13 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
         print('Distance {}'.format(distance))
         tt_S = distance / Vs
         s_time = o.time + tt_S
-        st = str.select(station=pk.waveform_id.station_code).copy()
-        st.filter(type='highpass', freq=2000.)
-        st.integrate().detrend('linear')
-        if len(st) != 3:
+        s = st.select(station=pk.waveform_id.station_code).copy()
+        s.filter(type='highpass', freq=2000.)
+        s.integrate().detrend('linear')
+        if len(s) != 3:
             print('{} not 3C'.format(pk.waveform_id.station_code))
             continue  # Pick from hydrophone
-        st_S = st.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
+        st_S = s.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
         Sig_V = np.sum(np.array([tr.data**2 for tr in st_S]), axis=1)
         int_sig_V = np.trapz(Sig_V)
         r0 = 0.04  # reference distance in km
