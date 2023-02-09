@@ -62,7 +62,7 @@ def plot_3D(locs, boreholes, colors, mags, stations, axes):
               linewidth=5)
     # Stations
     axes.scatter(sx, sy, sz, marker='v', color='r')
-    sizes = (mags + 9)**2
+    sizes = ((mags - np.min(mags)) * 2)**2
     mpl = axes.scatter(
         np.array(x)[mag_inds], np.array(y)[mag_inds],
         np.array(z)[mag_inds], marker='o',
@@ -87,7 +87,7 @@ def plot_magtime(times, mags, colors, axes):
     axes.scatter(mag_times, mags, c=colors)
     ax2 = axes.twinx()
     ax2.step(times, np.arange(len(times)), color='firebrick')
-    axes.set_ylim([-10, 0.])
+    axes.set_ylim([-6, -1.])
     axes.set_ylabel('Mw', fontsize=14)
     ax2.set_ylabel('Cumulative seismic events', fontsize=14)
     axes.set_xlabel('Time [UTC]', fontsize=14)
@@ -97,7 +97,7 @@ def plot_magtime(times, mags, colors, axes):
 
 
 def plot_mapview(locs, boreholes, colors, mags, stations, axes):
-    hull_pts = np.load('/media/chet/data/chet-collab/model/4100L_xy_alphashape_pts.npy')
+    hull_pts = np.load('/media/chopp/Data1/chet-collab/model/4100L_xy_alphashape_pts.npy')
     mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     # Plot boreholes
@@ -119,7 +119,7 @@ def plot_mapview(locs, boreholes, colors, mags, stations, axes):
     sx, sy, sz = zip(*stations)
     axes.scatter(sx, sy, marker='v', color='r')
     x, y, z = zip(*locs)
-    sizes = (mags + 9)**2
+    sizes = ((mags - np.min(mags)) * 2)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  marker='o', c=np.array(colors)[mag_inds], s=sizes)
     axes.plot(hull_pts[0, :], hull_pts[1, :], linewidth=0.9, color='k')

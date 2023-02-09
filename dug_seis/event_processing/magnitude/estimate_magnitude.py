@@ -277,8 +277,8 @@ def q(r):
     return q
 
 
-def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
-                         Rc, Q, inventory, plot=False):
+def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
+                         Q, inventory, plot=False):
     """
     Apply a magnitude estimation estimates the energy in the acceleration
     arrival of the S wave. Follows Kwiatek et al work from Aspo
@@ -288,7 +288,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     :param coordinates: Station coordinates
     :param global_to_local: Func for converting global to cartesian coords
     :param Vs: S-wave velocity (m/s)
-    :param p: Density (km/m**3)
+    :param p: Density (kg/m**3)
     :param plot: Debug plotting flag
     :return:
     """
@@ -309,41 +309,51 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
                               depth=-float(o.extra.hmc_elev.value))
     M0s = []
-    for pk in event.picks:
-        if pk.phase_hint == 'S':
+    used_stations = []
+    pk_dict = {p.waveform_id.station_code: [] for p in event.picks}
+    for pick in event.picks:
+        pk_dict[pick.waveform_id.station_code].append(pick)
+    for tr in st:
+        if tr.stats.station not in pk_dict or tr.stats.station in used_stations:
             continue
-        sx, sy, sz = coordinates[pk.waveform_id.id]
-        print(x, y, z, sx, sy, sz)
-        # Distance in km
-        distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2) / 1000.
-        print('Distance {}'.format(distance))
-        tt_S = distance / Vs
-        s_time = o.time + tt_S
-        s = st.select(station=pk.waveform_id.station_code).copy()
-        s.filter(type='highpass', freq=2000.)
-        s.integrate().detrend('linear')
-        if len(s) != 3:
-            print('{} not 3C'.format(pk.waveform_id.station_code))
-            continue  # Pick from hydrophone
-        st_S = s.slice(starttime=pk.time, endtime=pk.time + 0.02).copy()
-        Sig_V = np.sum(np.array([tr.data**2 for tr in st_S]), axis=1)
-        int_sig_V = np.trapz(Sig_V)
-        r0 = 0.04  # reference distance in km
-        E = 4 * np.pi * distance**2 * (r0 * q(r0) / distance * q(distance))**2 * Vs * p * int_sig_V
-        V_spec = do_spectrum(st_S[0])
-        # # Kwiatec & BenZion formulation
-        # freqs = V_spec.get_freq()
-        # Espec = (V_spec.data * np.exp((np.pi * freqs * distance) / (Vs * Q)))**2
-        # # Integrate over passband
-        # band_ints = np.where(freqs > 2000.)
-        # int_f = freqs[band_ints]
-        # Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
-        # E_acc = 4 * np.pi * p * Vs * Rc**2 * (distance / Rc)**2 * Jc
-        # E_Ss.append(E_acc)
-        if plot:
-            plot_magnitude_calc(st, st_S, V_spec, E)
-        M0s.append(2 * G * E / 1e-3)  # Stress drop = 1e-3 GPa
-    Mw = (0.6667 * np.log10(np.mean(M0s))) - 6.07
+        for pk in pk_dict[tr.stats.station]:
+            sx, sy, sz = coordinates[pk.waveform_id.id]
+            if pk.phase_hint == 'P':
+                Rc = 0.52
+                V = 5880
+            else:
+                Rc = 0.63
+                V = 3700
+            print(x, y, z, sx, sy, sz)
+            # Distance in meters
+            distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
+            print('Distance {}'.format(distance))
+            s = st.select(station=pk.waveform_id.station_code).copy()
+            # s.filter(type='highpass', freq=2000.)
+            s.integrate().detrend('linear')  # To velocity
+            if len(s) != 3:
+                print('{} not 3C'.format(pk.waveform_id.station_code))
+                continue  # Pick from hydrophone
+            st_S = s.slice(starttime=pk.time - 0.00025, endtime=pk.time + 0.002).copy()
+            V_specs = []
+            for t in st_S:
+                V_specs.append(do_spectrum(t))
+            # Kwiatec & BenZion 2013 (JAGUARS) eqn 3 and 4
+            freqs = V_specs[0].get_freq()
+            spec_data = [s.data for s in V_specs]
+            spec_data = np.sum(spec_data, axis=0)
+            Espec = (spec_data * np.exp((np.pi * freqs * distance) / (V * Q)))**2
+            # Integrate over passband
+            band_ints = np.where(freqs > 20.)
+            int_f = freqs[band_ints]
+            Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
+            E_acc = 4 * np.pi * p * V * Rc**2 * (distance / Rc)**2 * Jc
+            if plot:
+                plot_magnitude_calc(tr, st_S, V_specs, spec_data, E_acc)
+            M0s.append(2 * G * E_acc / 1e-3)  # Stress drop = 1e-3 GPa
+            used_stations.append(tr.stats.station)
+    # Moment calculation from above gives N m (SI), must convert to dyn cm
+    Mw = (0.6667 * np.log10(np.mean(M0s) * 1e7)) - 6.07
     print(Mw)
     magnitude = Magnitude(mag=Mw, type='Mw', origin_id=o.resource_id)
     event.magnitudes.append(magnitude)
@@ -351,14 +361,18 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, Vs, p, G,
     return
 
 
-def plot_magnitude_calc(st, st_S, V_spec, E_acc):
+def plot_magnitude_calc(tr, st_S, V_specs, spec_sum, E_acc):
     """QC plot for magnitude estimation"""
     fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
-    axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
-    axes[0].plot(st_S[0].times(reftime=st[0].stats.starttime),
+    axes[0].plot(tr.times(), tr.data, color='k', linewidth=0.7)
+    axes[0].plot(st_S[0].times(reftime=tr.stats.starttime),
                  st_S[0].data, color='r', linewidth=0.8)
-    axes[0].set_title(st[0].id)
-    axes[1] = V_spec.plot()
+    axes[0].set_title(tr.id)
+    axes[1] = V_specs[0].plot()
+    for vspec in V_specs[1:]:
+        vspec.plot(axes=axes[1])
+    axes[1].plot(vspec.get_freq(), spec_sum)
+    axes[1].set_yscale('log')
     axes[1].annotate(xy=(0.03, 0.7), text='Energy: {}'.format(E_acc), fontsize=8,
                      xycoords='axes fraction')
     plt.show()

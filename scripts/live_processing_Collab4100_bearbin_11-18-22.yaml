@@ -11,7 +11,8 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/bear0-data/SURF_4100_MonitoringData/Synology48/VBox/SURF4100_FlowTesting/'
+#    - '/bear0-data/SURF_4100_MonitoringData/Synology48/VBox/SURF4100_FlowTesting/'
+    - ''/bear0-data/SURF_4100_MonitoringData/HDD_vbox_flowTest2_oct2022'
   stationxml_folders:
     - '/global/home/users/chopp/chet-collab/single-channel-inventories'
   spike_mseed: '/global/home/users/chopp/chet-collab/wavs/ERT_spikes'
@@ -24,8 +25,8 @@ paths:
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-07-17T21:59:00.000Z
-  end_time: 2022-9-1T23:59:59.999Z
+  start_time: 2022-05-25T17:16:19.132710Z
+  end_time: 2022-05-26T22:03:07.368340Z
 
 graphical_interface:
   classifications:
