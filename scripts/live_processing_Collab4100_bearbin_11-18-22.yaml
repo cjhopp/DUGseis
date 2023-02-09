@@ -12,7 +12,7 @@ local_coordinate_system:
 paths:
   asdf_folders:
 #    - '/bear0-data/SURF_4100_MonitoringData/Synology48/VBox/SURF4100_FlowTesting/'
-    - ''/bear0-data/SURF_4100_MonitoringData/HDD_vbox_flowTest2_oct2022'
+    - '/bear0-data/SURF_4100_MonitoringData/HDD_vbox_flowTest2_oct2022'
   stationxml_folders:
     - '/global/home/users/chopp/chet-collab/single-channel-inventories'
   spike_mseed: '/global/home/users/chopp/chet-collab/wavs/ERT_spikes'
