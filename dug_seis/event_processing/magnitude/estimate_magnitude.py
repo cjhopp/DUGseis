@@ -23,7 +23,9 @@ Functionality to estimate moment magnitude from accelerometer recordings
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy import stats
 from copy import copy, deepcopy
+from obspy import read
 from obspy.core import Trace
 from obspy.core.event import Magnitude
 from scipy import optimize
@@ -126,6 +128,19 @@ def fit_wrapper(tt, n, gamma):
 
 def fit_abercrombie(freqs, spec, tt, n, gamma):
     popt, pcov = optimize.curve_fit(fit_wrapper(tt, n, gamma), freqs, spec * 1e18)
+    return popt, pcov
+
+
+def boatwright_wrapper(Rc, p, Vc, R):
+    def boatwright_spec(freqs, fc, Qc, M0):
+        omega = (freqs * M0) / (1 + (freqs / fc)**4)**0.5
+        spec = (Rc / (2 * p * Vc**3 * R)) * omega * np.exp(-(np.pi * R * freqs) / (Qc * Vc))
+        return spec
+    return boatwright_spec
+
+
+def fit_boatwright(freqs, spec, Rc, p, Vc, R):
+    popt, pcov = optimize.curve_fit(boatwright_wrapper(Rc, p, Vc, R), freqs, spec)
     return popt, pcov
 
 
@@ -308,13 +323,18 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
     # x, y, z = global_to_local(point=(o.latitude, o.longitude, o.depth))
     x, y, z = global_to_local(latitude=o.latitude, longitude=o.longitude,
                               depth=-float(o.extra.hmc_elev.value))
-    M0s = []
+    M0_Ps = []
+    M0_Ss = []
+    ev_snrs = []
     used_stations = []
-    pk_dict = {p.waveform_id.station_code: [] for p in event.picks}
+    pk_dict = {}
     for pick in event.picks:
-        pk_dict[pick.waveform_id.station_code].append(pick)
+        if pick.waveform_id.station_code not in pk_dict:
+            pk_dict[pick.waveform_id.station_code] = [pick]
+        else:
+            pk_dict[pick.waveform_id.station_code].append(pick)
     for tr in st:
-        if tr.stats.station not in pk_dict or tr.stats.station in used_stations:
+        if tr.stats.station not in pk_dict.keys() or tr.stats.station in used_stations:
             continue
         for pk in pk_dict[tr.stats.station]:
             sx, sy, sz = coordinates[pk.waveform_id.id]
@@ -329,12 +349,19 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
             distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
             print('Distance {}'.format(distance))
             s = st.select(station=pk.waveform_id.station_code).copy()
-            # s.filter(type='highpass', freq=2000.)
+            s.filter(type='highpass', freq=1000.)
             s.integrate().detrend('linear')  # To velocity
             if len(s) != 3:
                 print('{} not 3C'.format(pk.waveform_id.station_code))
                 continue  # Pick from hydrophone
-            st_S = s.slice(starttime=pk.time - 0.00025, endtime=pk.time + 0.002).copy()
+            st_noise = s.slice(starttime=pk.time - 0.037, endtime=pk.time - 0.007).copy()
+            st_S = s.slice(starttime=pk.time, endtime=pk.time + 0.0015).copy()
+            sig_pow = np.sqrt(np.mean(st_S.select(id=pk.waveform_id.get_seed_string())[0].copy().data ** 2))
+            noise_pow = np.sqrt(np.mean(st_noise.select(id=pk.waveform_id.get_seed_string())[0].copy().data ** 2))
+            pk_snr = 20 * np.log10(sig_pow / noise_pow)
+            if pk_snr < 10.:  # 10 dB limit for picks
+                continue
+            ev_snrs.append(pk_snr)
             V_specs = []
             for t in st_S:
                 V_specs.append(do_spectrum(t))
@@ -344,37 +371,116 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
             spec_data = np.sum(spec_data, axis=0)
             Espec = (spec_data * np.exp((np.pi * freqs * distance) / (V * Q)))**2
             # Integrate over passband
-            band_ints = np.where(freqs > 20.)
+            band_ints = np.where(freqs > 1000.)
             int_f = freqs[band_ints]
             Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
             E_acc = 4 * np.pi * p * V * Rc**2 * (distance / Rc)**2 * Jc
+            # Fit spectra
+            try:
+                popt, pcov = fit_boatwright(freqs, spec_data, Rc, p, V, distance)
+            except RuntimeError as e:
+                continue
+            bw_spec = boatwright_wrapper(Rc, p, V, distance)
+            best_fit = bw_spec(freqs, popt[0], popt[1], popt[2])
             if plot:
-                plot_magnitude_calc(tr, st_S, V_specs, spec_data, E_acc)
-            M0s.append(2 * G * E_acc / 1e-3)  # Stress drop = 1e-3 GPa
+                plot_magnitude_calc(
+                    s.select(id=pk.waveform_id.get_seed_string()), st_S.select(id=pk.waveform_id.get_seed_string()),
+                    V_specs, spec_data, E_acc, pk_snr, st_noise.select(id=pk.waveform_id.get_seed_string()),
+                    best_fit)
+            M0 = 2 * G * E_acc / 1e-3
+            if pk.phase_hint == 'P':
+                M0_Ps.append(M0)  # Stress drop = 1e-3 GPa
+            elif pk.phase_hint == 'S':
+                M0_Ss.append(M0)
             used_stations.append(tr.stats.station)
+    if len(M0_Ps) == 0 and len(M0_Ss) == 0:
+        return np.nan, np.nan, np.nan, np.nan
     # Moment calculation from above gives N m (SI), must convert to dyn cm
-    Mw = (0.6667 * np.log10(np.mean(M0s) * 1e7)) - 6.07
+    Mw_P = (0.667 * np.log10(np.mean(M0_Ps) * 1e7)) - 6.07
+    Mw_S = (0.667 * np.log10(np.mean(M0_Ss) * 1e7)) - 6.07
+    Mw = (0.6667 * np.log10(np.mean(M0_Ps + M0_Ss) * 1e7)) - 6.07
+    ev_snr = np.mean(ev_snrs)
     print(Mw)
     magnitude = Magnitude(mag=Mw, type='Mw', origin_id=o.resource_id)
     event.magnitudes.append(magnitude)
     event.preferred_magnitude_id = event.magnitudes[-1].resource_id
+    return Mw_P, Mw_S, ev_snr, Mw
+
+
+def estimate_mags_catalog(catalog, project, stream_dict, plot_picks=False, plot_mag_stats=False):
+    mwps = []
+    mwss = []
+    snrs = []
+    Mws = []
+    for ev in catalog:
+        mwp, mws, snr, mw = est_magnitude_energy(ev, read(stream_dict[ev.resource_id.id.split('/')[-1]]),
+                                                 project.cartesian_coordinates,
+                                                 project.global_to_local_coordinates, p=3050, G=40, inventory=
+                                                 project.inventory, Q=210, plot=plot_picks)
+        mwps.append(mwp)
+        mwss.append(mws)
+        snrs.append(snr)
+        Mws.append(mw)
+    if plot_mag_stats:
+        MwP = np.array(mwps)
+        MwS = np.array(mwss)
+        SNR = np.array(snrs)
+        plot_mag_results(MwS[np.where((~np.isnan(MwS)) & (~np.isnan(MwP)))],
+                         MwP[np.where((~np.isnan(MwS)) & (~np.isnan(MwP)))],
+                         SNR[np.where((~np.isnan(MwS)) & (~np.isnan(MwP)))],
+                         np.array(Mws))
     return
 
 
-def plot_magnitude_calc(tr, st_S, V_specs, spec_sum, E_acc):
+def freq_band_correction(fM, fo):
+    """
+    Correct radiated energy estimate for limited frequency band following Ide & Beroza 2001 (GRL)
+    :return:
+    """
+    F = (-fM / fo) / (1 + (fM / fo))**2 + np.arctan(fM / fo)
+    return (2 / np.pi) * F
+
+
+def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, best_fit):
     """QC plot for magnitude estimation"""
     fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
-    axes[0].plot(tr.times(), tr.data, color='k', linewidth=0.7)
-    axes[0].plot(st_S[0].times(reftime=tr.stats.starttime),
+    axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
+    axes[0].plot(st_S[0].times(reftime=st[0].stats.starttime),
                  st_S[0].data, color='r', linewidth=0.8)
-    axes[0].set_title(tr.id)
+    axes[0].plot(st_noise[0].times(reftime=st[0].stats.starttime),
+                 st_noise[0].data, color='b', linewidth=0.8)
+    axes[0].set_title(st[0].stats.station)
     axes[1] = V_specs[0].plot()
+    do_spectrum(st_noise[0]).plot(axes=axes[1], linestyle='--', color='gray')
     for vspec in V_specs[1:]:
         vspec.plot(axes=axes[1])
     axes[1].plot(vspec.get_freq(), spec_sum)
+    axes[1].plot(vspec.get_freq(), best_fit, linestyle=':', color='magenta')
     axes[1].set_yscale('log')
     axes[1].annotate(xy=(0.03, 0.7), text='Energy: {}'.format(E_acc), fontsize=8,
                      xycoords='axes fraction')
+    axes[1].annotate(xy=(0.03, 0.8), text='SNR: {} dB'.format(snr), fontsize=8,
+                     xycoords='axes fraction')
+    plt.show()
+    return
+
+
+def plot_mag_results(X, Y, SNRs, Mws):
+    print(X, Y)
+    fig, axes = plt.subplots(ncol=2)
+    axes[0].scatter(X, Y, s=SNRs)
+    res = stats.linregress(X, Y)
+    regr_y = res.intercept + res.slope * X
+    axes[0].plot(X, regr_y)
+    axes[0].plot(X, X, linestyle='--', color='k')
+    axes[0].annotate(xy=(0.2, 0.9), xytext=(0.2, 0.9), xycoords='axes fraction', text='{:0.2f}'.format(res.slope))
+    axes[0].set_xlabel('M$_W$ from S')
+    axes[0].set_ylabel('M$_W$ from P')
+    axes[0].set_aspect('equal')
+    axes[0].set_xlim([-7, -1])
+    axes[0].set_ylim([-7, -1])
+    axes[0].set_title('M$_{W}$ P vs S')
+    axes[1].hist(Mws, cumulative=True, )
     plt.show()
     return
 
