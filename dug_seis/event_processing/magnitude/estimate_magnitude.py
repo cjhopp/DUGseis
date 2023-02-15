@@ -140,7 +140,7 @@ def boatwright_wrapper(Rc, p, Vc, R):
 
 
 def fit_boatwright(freqs, spec, Rc, p, Vc, R):
-    popt, pcov = optimize.curve_fit(boatwright_wrapper(Rc, p, Vc, R), freqs, spec)
+    popt, pcov = optimize.curve_fit(boatwright_wrapper(Rc, p, Vc, R), xdata=freqs, ydata=spec, p0=[10000, 300, 1e12])
     return popt, pcov
 
 
@@ -344,7 +344,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
             else:
                 Rc = 0.63
                 V = 3700
-            print(x, y, z, sx, sy, sz)
+            # print(x, y, z, sx, sy, sz)
             # Distance in meters
             distance = np.sqrt((sx - x)**2 + (sy - y)**2 + (sz - z)**2)
             print('Distance {}'.format(distance))
@@ -371,23 +371,25 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
             spec_data = np.sum(spec_data, axis=0)
             Espec = (spec_data * np.exp((np.pi * freqs * distance) / (V * Q)))**2
             # Integrate over passband
-            band_ints = np.where(freqs > 1000.)
+            band_ints = np.where(freqs > 2000.)
             int_f = freqs[band_ints]
             Jc = 2 * np.trapz(Espec[band_ints], x=int_f)
             E_acc = 4 * np.pi * p * V * Rc**2 * (distance / Rc)**2 * Jc
             # Fit spectra
-            try:
-                popt, pcov = fit_boatwright(freqs, spec_data, Rc, p, V, distance)
-            except RuntimeError as e:
-                continue
+            # try:
+            popt, pcov = fit_boatwright(int_f, spec_data[band_ints], Rc, p, V, distance)
+            # except RuntimeError as e:
+            #     continue
+            print('POPT: {}'.format(popt))
             bw_spec = boatwright_wrapper(Rc, p, V, distance)
-            best_fit = bw_spec(freqs, popt[0], popt[1], popt[2])
+            best_fit = bw_spec(int_f, popt[0], popt[1], popt[2])
             if plot:
                 plot_magnitude_calc(
                     s.select(id=pk.waveform_id.get_seed_string()), st_S.select(id=pk.waveform_id.get_seed_string()),
                     V_specs, spec_data, E_acc, pk_snr, st_noise.select(id=pk.waveform_id.get_seed_string()),
-                    best_fit)
+                    int_f, best_fit)
             M0 = 2 * G * E_acc / 1e-3
+            print('M0: {}'.format(M0))
             if pk.phase_hint == 'P':
                 M0_Ps.append(M0)  # Stress drop = 1e-3 GPa
             elif pk.phase_hint == 'S':
@@ -441,7 +443,7 @@ def freq_band_correction(fM, fo):
     return (2 / np.pi) * F
 
 
-def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, best_fit):
+def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, fit_freqs, best_fit):
     """QC plot for magnitude estimation"""
     fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
     axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
@@ -455,7 +457,7 @@ def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, best_
     for vspec in V_specs[1:]:
         vspec.plot(axes=axes[1])
     axes[1].plot(vspec.get_freq(), spec_sum)
-    axes[1].plot(vspec.get_freq(), best_fit, linestyle=':', color='magenta')
+    axes[1].plot(fit_freqs, best_fit, linestyle=':', color='magenta')
     axes[1].set_yscale('log')
     axes[1].annotate(xy=(0.03, 0.7), text='Energy: {}'.format(E_acc), fontsize=8,
                      xycoords='axes fraction')
