@@ -16,10 +16,10 @@ paths:
   stationxml_folders:
     - '/global/home/users/chopp/chet-collab/single-channel-inventories'
   spike_mseed: '/global/home/users/chopp/chet-collab/wavs/ERT_spikes'
-  database: 'sqlite:///global/home/users/chopp/chet-collab/Collab_live_data/db_pt2.sqlite'
-  cache_folder: '/global/home/users/chopp/chet-collab/Collab_live_data/cache_pt2'
-  out_wav_folder: '/global/home/users/chopp/chet-collab/realtime_wav_snippets_pt2'
-  out_catalog_folder: '/global/home/users/chopp/chet-collab/realtime_catalog_pt2'
+  database: 'sqlite:///global/home/users/chopp/chet-collab/Collab_live_data/db_pt3.sqlite'
+  cache_folder: '/global/home/users/chopp/chet-collab/Collab_live_data/cache_pt3'
+  out_wav_folder: '/global/home/users/chopp/chet-collab/realtime_wav_snippets_pt3'
+  out_catalog_folder: '/global/home/users/chopp/chet-collab/realtime_catalog_pt3'
   output_figure: '/global/home/users/chopp/chet-collab/meq_plots/realtime_figure.png'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
