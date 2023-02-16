@@ -25,7 +25,7 @@ paths:
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2022-05-29T05:43:58.588720Z
+  start_time: 2022-05-30T00:02:18.188720Z
   end_time: 2022-05-31T19:28:58.448960Z
 
 graphical_interface:
