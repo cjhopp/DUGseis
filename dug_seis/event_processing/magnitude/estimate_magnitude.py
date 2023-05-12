@@ -355,7 +355,7 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
                 print('{} not 3C'.format(pk.waveform_id.station_code))
                 continue  # Pick from hydrophone
             st_noise = s.slice(starttime=pk.time - 0.037, endtime=pk.time - 0.007).copy()
-            st_S = s.slice(starttime=pk.time, endtime=pk.time + 0.0015).copy()
+            st_S = s.slice(starttime=pk.time, endtime=pk.time + 0.001).copy()
             sig_pow = np.sqrt(np.mean(st_S.select(id=pk.waveform_id.get_seed_string())[0].copy().data ** 2))
             noise_pow = np.sqrt(np.mean(st_noise.select(id=pk.waveform_id.get_seed_string())[0].copy().data ** 2))
             pk_snr = 20 * np.log10(sig_pow / noise_pow)
@@ -385,9 +385,9 @@ def est_magnitude_energy(event, stream, coordinates, global_to_local, p, G,
             best_fit = bw_spec(int_f, popt[0], popt[1], popt[2])
             if plot:
                 plot_magnitude_calc(
-                    s.select(id=pk.waveform_id.get_seed_string()), st_S.select(id=pk.waveform_id.get_seed_string()),
-                    V_specs, spec_data, E_acc, pk_snr, st_noise.select(id=pk.waveform_id.get_seed_string()),
-                    int_f, best_fit)
+                    s.select(id=pk.waveform_id.get_seed_string()), pk.phase_hint,
+                    st_S.select(id=pk.waveform_id.get_seed_string()), V_specs, spec_data, E_acc, pk_snr,
+                    st_noise.select(id=pk.waveform_id.get_seed_string()), int_f, best_fit)
             M0 = 2 * G * E_acc / 1e-3
             print('M0: {}'.format(M0))
             if pk.phase_hint == 'P':
@@ -431,7 +431,7 @@ def estimate_mags_catalog(catalog, project, stream_dict, plot_picks=False, plot_
                          MwP[np.where((~np.isnan(MwS)) & (~np.isnan(MwP)))],
                          SNR[np.where((~np.isnan(MwS)) & (~np.isnan(MwP)))],
                          np.array(Mws))
-    return
+    return MwP, MwS, SNR
 
 
 def freq_band_correction(fM, fo):
@@ -443,7 +443,7 @@ def freq_band_correction(fM, fo):
     return (2 / np.pi) * F
 
 
-def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, fit_freqs, best_fit):
+def plot_magnitude_calc(st, phase, st_S, V_specs, spec_sum, E_acc, snr, st_noise, fit_freqs, best_fit):
     """QC plot for magnitude estimation"""
     fig, axes = plt.subplots(nrows=2, figsize=(12, 8))
     axes[0].plot(st[0].times(), st[0].data, color='k', linewidth=0.7)
@@ -451,7 +451,7 @@ def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, fit_f
                  st_S[0].data, color='r', linewidth=0.8)
     axes[0].plot(st_noise[0].times(reftime=st[0].stats.starttime),
                  st_noise[0].data, color='b', linewidth=0.8)
-    axes[0].set_title(st[0].stats.station)
+    axes[0].set_title('{} phase: {}.{}'.format(phase, st[0].stats.station, st[0].stats.channel))
     axes[1] = V_specs[0].plot()
     do_spectrum(st_noise[0]).plot(axes=axes[1], linestyle='--', color='gray')
     for vspec in V_specs[1:]:
@@ -469,7 +469,7 @@ def plot_magnitude_calc(st, st_S, V_specs, spec_sum, E_acc, snr, st_noise, fit_f
 
 def plot_mag_results(X, Y, SNRs, Mws):
     print(X, Y)
-    fig, axes = plt.subplots(ncol=2)
+    fig, axes = plt.subplots(ncols=2)
     axes[0].scatter(X, Y, s=SNRs)
     res = stats.linregress(X, Y)
     regr_y = res.intercept + res.slope * X
@@ -482,7 +482,7 @@ def plot_mag_results(X, Y, SNRs, Mws):
     axes[0].set_xlim([-7, -1])
     axes[0].set_ylim([-7, -1])
     axes[0].set_title('M$_{W}$ P vs S')
-    axes[1].hist(Mws, cumulative=True, )
+    axes[1].hist(Mws, cumulative=-1, histtype='step', log=True)
     plt.show()
     return
 

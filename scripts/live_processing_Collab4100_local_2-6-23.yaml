@@ -13,7 +13,7 @@ paths:
   asdf_folders:
     - '/media/chopp/Data1/chet-collab/wavs/4100/vbox_raw/'
   stationxml_folders:
-    - '/media/chopp/Data1/chet-collab/stations/4100/inventories/single-channel'
+    - '/media/chopp/Data1/chet-collab/stations/4100/inventories/single-channel-updated'
   spike_mseed: '/media/chopp/Data1/chet-collab/wavs/4100/ERT_spikes'
   database: 'sqlite:///home/chopp/scratch/Collab_live_data/db_pt2.sqlite'
   cache_folder: '/home/chopp/scratch/Collab_live_data/cache'
