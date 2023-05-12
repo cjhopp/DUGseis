@@ -15,6 +15,7 @@ paths:
     - '/bear0-data/FSB/FSB_VBox/FSB_Nov21/EXT_HDD/FSB_VBOX_NOV2021_DISK2'
   stationxml_folders:
     - '/global/home/users/chopp/chet-FS-B/network_design/inventories/single_channel'
+  spike_mseed: ''
   database: 'sqlite:///global/home/users/chopp/chet-FS-B/dug_seis/2021/db.sqlite'
   cache_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2021/cache'
   out_wav_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2021/wav_snippets'
