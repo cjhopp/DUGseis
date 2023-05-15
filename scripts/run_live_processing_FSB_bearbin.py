@@ -210,7 +210,7 @@ def denoise(st):
     for tr in st:
         if tr.stats.station != 'CTrg':
             tr.data -= noise_vect
-    return
+    return st
 
 
 def launch_processing(project):
