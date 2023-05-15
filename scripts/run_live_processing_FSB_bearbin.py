@@ -25,6 +25,8 @@ from glob import glob
 from tempfile import mkstemp
 from datetime import datetime
 
+# Denoise import
+from eqcorrscan.utils import clustering
 # Despiking imports
 from eqcorrscan.utils.timer import Timer
 from eqcorrscan.utils.correlate import get_array_xcorr
