@@ -283,7 +283,7 @@ def launch_processing(project):
                 "trigger_type": "recstalta",
                 "thr_on": 4.0,
                 "thr_off": 1.5,
-                "thr_coincidence_sum": 6,
+                "thr_coincidence_sum": 2,
                 # The time windows are given in seconds.
                 "sta": 0.002,
                 "lta": 0.05,
