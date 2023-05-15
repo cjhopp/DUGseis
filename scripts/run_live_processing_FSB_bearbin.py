@@ -397,7 +397,7 @@ def launch_processing(project):
                 time.sleep(1)
                 project.db._backend.connection.commit()
             del st_event
-        del st_triggering, st_mags
+        del st_triggering
         gc.collect()
         logger.info(
             f"Successfully located {added_event_count} of "
