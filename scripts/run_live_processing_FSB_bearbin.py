@@ -245,25 +245,9 @@ def launch_processing(project):
                 start_time=interval_start,
                 end_time=interval_end,
             )
-        except AssertionError as e:
-            time.sleep(32.)  # File still being written
-            st_all = project.waveforms.get_waveforms(
-                channel_ids=[
-                    'FS.B31..XNZ', 'FS.B31..XNX', 'FS.B31..XNY', 'FS.B32..XNZ', 'FS.B32..XNX', 'FS.B32..XNY',
-                    'FS.B42..XNZ', 'FS.B42..XNX', 'FS.B42..XNY', 'FS.B43..XNZ', 'FS.B43..XNX', 'FS.B43..XNY',
-                    'FS.B551..XNZ', 'FS.B551..XNX', 'FS.B551..XNY', 'FS.B585..XNZ', 'FS.B585..XNX', 'FS.B585..XNY',
-                    'FS.B647..XNZ', 'FS.B647..XNX', 'FS.B647..XNY', 'FS.B659..XNZ', 'FS.B659..XNX', 'FS.B659..XNY',
-                    'FS.B748..XNZ', 'FS.B748..XNX', 'FS.B748..XNY', 'FS.B75..XNZ', 'FS.B75..XNX', 'FS.B75..XNY',
-                    'FS.B301..XN1', 'FS.B303..XN1', 'FS.B305..XN1', 'FS.B307..XN1', 'FS.B309..XN1', 'FS.B310..XN1',
-                    'FS.B311..XN1', 'FS.B312..XN1', 'FS.B314..XN1', 'FS.B316..XN1', 'FS.B318..XN1', 'FS.B320..XN1',
-                    'FS.B322..XN1', 'FS.B401..XN1', 'FS.B403..XN1', 'FS.B405..XN1', 'FS.B407..XN1', 'FS.B409..XN1',
-                    'FS.B410..XN1', 'FS.B411..XN1', 'FS.B412..XN1', 'FS.B414..XN1', 'FS.B416..XN1', 'FS.B418..XN1',
-                    'FS.B420..XN1', 'FS.B422..XN1', 'FS.CTrg..', 'FS.CEnc..', 'FS.PPS..', 'FS.CMon..', 'FS.B81..XN1',
-                    'FS.B82..XN1', 'FS.B83..XN1', 'FS.B91..XN1'],
-                start_time=interval_start,
-                end_time=interval_end,
-            )
-
+        except ValueError as e:
+            print('No waveform data. Next time span')
+            continue
         if len(st_all) == 0:
             print('No waveform data found')
             continue
