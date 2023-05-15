@@ -275,7 +275,7 @@ def launch_processing(project):
         detected_events = dug_trigger(
             st=st_triggering,
             # Helps with classification.
-            active_triggering_channel="FS.CTrig..",
+            active_triggering_channel="FS.CTrg..",
             minimum_time_between_events_in_seconds=0.02,
             max_spread_electronic_interference_in_seconds=2e-5,
             # Passed on the coincidence trigger.
@@ -315,7 +315,7 @@ def launch_processing(project):
                 endtime=event_candidate["time"] + 1e-2).copy()
             # Remove the active trigger before picking
             st_event.traces.remove(st_event.select(station='CTrg')[0])
-            st_event = st_event.select(channel='XNX')
+            st_event = st_event.select(channel='XN1')
             st_event.detrend('demean')
             st_event.detrend('linear')
             try:
