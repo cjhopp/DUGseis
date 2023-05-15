@@ -255,8 +255,8 @@ def launch_processing(project):
             if isinstance(tr.data, np.ma.masked_array):
                 tr.data = tr.data.filled(fill_value=tr.data.mean())
         # Separate triggering and magnitude traces
-        st_mags = obspy.Stream(
-            traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
+        # st_mags = obspy.Stream(
+        #     traces=[tr for tr in st_all if tr.id in mag_chans]).copy()
         st_triggering = obspy.Stream(
             traces=[tr for tr in st_all if tr.id in trigger_chans]).copy()
 
@@ -283,7 +283,7 @@ def launch_processing(project):
                 "trigger_type": "recstalta",
                 "thr_on": 4.0,
                 "thr_off": 1.5,
-                "thr_coincidence_sum": 2,
+                "thr_coincidence_sum": 3,
                 # The time windows are given in seconds.
                 "sta": 0.002,
                 "lta": 0.05,
@@ -314,7 +314,7 @@ def launch_processing(project):
                 starttime=event_candidate["time"] - 3e-3,
                 endtime=event_candidate["time"] + 1e-2).copy()
             # Remove the active trigger before picking
-            st_event.traces.remove(st_event.select(station='CTrig')[0])
+            st_event.traces.remove(st_event.select(station='CTrg')[0])
             st_event = st_event.select(channel='XNX')
             st_event.detrend('demean')
             st_event.detrend('linear')
