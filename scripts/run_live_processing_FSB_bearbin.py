@@ -318,25 +318,28 @@ def launch_processing(project):
             st_event = st_event.select(channel='XNX')
             st_event.detrend('demean')
             st_event.detrend('linear')
-            picks = dug_picker(
-                    st=st_event,
-                    pick_algorithm="aicd",
-                    picker_opts={
-                        # Here given as samples.
-                        "bandpass_f_min": 2000,
-                        "bandpass_f_max": 49000,
-                        "t_ma": 0.0003,
-                        "nsigma": 4,
-                        "t_up": 0.00078,
-                        "nr_len": 0.002,
-                        "nr_coeff": 2,
-                        "pol_len": 50,
-                        "pol_coeff": 10,
-                        "uncert_coeff": 3,
-                        "plot": False
-                    },
-                )
-
+            try:
+                picks = dug_picker(
+                        st=st_event,
+                        pick_algorithm="aicd",
+                        picker_opts={
+                            # Here given as samples.
+                            "bandpass_f_min": 2000,
+                            "bandpass_f_max": 49000,
+                            "t_ma": 0.0003,
+                            "nsigma": 4,
+                            "t_up": 0.00078,
+                            "nr_len": 0.002,
+                            "nr_coeff": 2,
+                            "pol_len": 50,
+                            "pol_coeff": 10,
+                            "uncert_coeff": 3,
+                            "plot": False
+                        },
+                    )
+            except ValueError as e:
+                print(e)
+                print(st_event)
             # We want at least three picks, otherwise we don't designate it an event.
             if len(picks) < 3:
                 # Optionally save the picks to the database as unassociated picks.
