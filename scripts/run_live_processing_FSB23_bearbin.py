@@ -79,7 +79,14 @@ DML4.*
 DMU4.XNZ
 """
 
-trigger_chans = ['FS.B81..XN1', 'FS.B82..XN1', 'FS.B83..XN1', 'FS.B91..XN1', 'FS.CTrg..']
+# trigger_chans = ['FS.B81..XN1', 'FS.B82..XN1', 'FS.B83..XN1', 'FS.B91..XN1', 'FS.CTrg..']
+
+trigger_chans = [
+    'FS.B301..XN1', 'FS.B303..XN1', 'FS.B305..XN1', 'FS.B307..XN1', 'FS.B309..XN1', 'FS.B91..XN1',
+    'FS.B310..XN1', 'FS.B311..XN1', 'FS.B312..XN1', 'FS.B314..XN1', 'FS.B316..XN1', 'FS.B318..XN1', 'FS.B320..XN1',
+    'FS.B322..XN1', 'FS.B401..XN1', 'FS.B403..XN1', 'FS.B405..XN1', 'FS.B407..XN1', 'FS.B409..XN1', 'FS.B410..XN1',
+    'FS.B411..XN1', 'FS.B412..XN1', 'FS.B414..XN1', 'FS.B416..XN1', 'FS.B418..XN1', 'FS.B420..XN1', 'FS.B422..XN1',
+    'FS.CTrg..']
 
 mag_chans = [
     'FS.B31..XNZ', 'FS.B31..XNX', 'FS.B31..XNY', 'FS.B32..XNZ', 'FS.B32..XNX', 'FS.B32..XNY', 'FS.B42..XNZ',
@@ -283,7 +290,7 @@ def launch_processing(project):
                 "trigger_type": "recstalta",
                 "thr_on": 4.0,
                 "thr_off": 1.5,
-                "thr_coincidence_sum": 3,
+                "thr_coincidence_sum": 6,
                 # The time windows are given in seconds.
                 "sta": 0.002,
                 "lta": 0.05,
