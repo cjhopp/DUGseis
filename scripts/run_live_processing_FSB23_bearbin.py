@@ -205,9 +205,9 @@ def despike(tr, temp_streams, cc_thresh):
 
 
 def denoise(st):
-    # Do SVD denoising to "remove" 50 Hz electrical and switching noise
+    # Do SVD denoising to "remove" 50 Hz electrical and switching noise from AE traces
     stream_list = [st.select(station=tr.stats.station).copy()
-                   for tr in st if tr.stats.station != 'CTrg']
+                   for tr in st if tr.stats.station in ['B91', 'B81', 'B82', 'B83']]
     for strm in stream_list:
         strm[0].stats.station = 'XXX'
     u, s, v, stachans = clustering.svd(stream_list=stream_list,
@@ -215,7 +215,7 @@ def denoise(st):
     # Reweight the first singular vector
     noise_vect = np.dot(u[0][:, 0] * s[0][0], v[0][0, 0])
     for tr in st:
-        if tr.stats.station != 'CTrg':
+        if tr.stats.station in ['B91', 'B81', 'B82', 'B83']:
             tr.data -= noise_vect
     return st
 

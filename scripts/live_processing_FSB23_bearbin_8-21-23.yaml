@@ -11,10 +11,10 @@ local_coordinate_system:
 
 paths:
   asdf_folders:
-    - '/bear0-data/FSB/FSB_Vbox_2023/07may23_PulseDay1'
+#    - '/bear0-data/FSB/FSB_Vbox_2023/07may23_PulseDay1'
     - '/bear0-data/FSB/FSB_Vbox_2023/08may23_InjectionDay1'
     - '/bear0-data/FSB/FSB_Vbox_2023/09may23_InjectionDay2'
-    - '/bear0-data/FSB/FSB_Vbox_2023/10may23_PulseDay2'
+#    - '/bear0-data/FSB/FSB_Vbox_2023/10may23_PulseDay2'
   stationxml_folders:
     - '/global/home/users/chopp/chet-FS-B/network_design/inventories/single_channel'
   spike_mseed: ''
@@ -27,8 +27,8 @@ paths:
 # Must cover the whole range of the experiment, e.g. more than the expected
 # start + end time for the live test case.
 temporal_range:
-  start_time: 2023-5-8T12:41:38.300000Z
-  end_time: 2023-5-11T00:00:00.000000Z
+  start_time: 2023-5-8T10:00:00.000000Z
+  end_time: 2023-5-8T18:00:00.000000Z
 
 graphical_interface:
   classifications:
