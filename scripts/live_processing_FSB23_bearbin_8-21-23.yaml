@@ -20,8 +20,8 @@ paths:
   spike_mseed: ''
   database: 'sqlite:///global/home/users/chopp/chet-FS-B/dug_seis/2023/db.sqlite'
   cache_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/cache'
-  out_wav_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/wav_snippets'
-  out_catalog_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/catalog'
+  out_wav_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/wav_snippets_4-sta'
+  out_catalog_folder: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/catalog_4-sta'
   output_figure: '/global/home/users/chopp/chet-FS-B/dug_seis/2023/FSB_seis_figure.png'
 
 # Must cover the whole range of the experiment, e.g. more than the expected
