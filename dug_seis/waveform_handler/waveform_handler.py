@@ -595,10 +595,13 @@ class WaveformHandler:
                     print(gap_tr)
                     st.traces.append(gap_tr)
         print(st.__str__(extended=True))
+        st[0].plot()
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st.__str__(extended=True))
+        st[0].plot()
         st.merge()
         print(st.__str__(extended=True))
+        st.plot()
         if return_trace:
             return st
 
