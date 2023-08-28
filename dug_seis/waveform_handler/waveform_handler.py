@@ -597,7 +597,7 @@ class WaveformHandler:
         print(st.__str__(extended=True))
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st.__str__(extended=True))
-        st[0].write('test_gap_fill.ms', format="MSEED")
+        st.select(id=id).write('test_gap_fill.ms', format="MSEED")
         st.merge()
         print(st.__str__(extended=True))
         if return_trace:
