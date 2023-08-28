@@ -585,7 +585,11 @@ class WaveformHandler:
                                    gap_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
                     print('{} samples'.format(samples))
                     mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
-                    fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
+                    try:
+                        fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
+                    except IndexError as e:
+                        print('Length zero trace. Ignoring.')
+                        continue
                     # Fill with noise
                     fill += np.random.normal(0, mad, fill.shape)
                     gap_tr = obspy.Trace(header=gap_st[gap_no].stats, data=fill)
