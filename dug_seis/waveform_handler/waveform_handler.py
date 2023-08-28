@@ -572,11 +572,12 @@ class WaveformHandler:
             if len(st.select(id=i)) == 1:
                 continue
             else:
-                print('Filling gaps')
+                print('Filling gaps: {}'.format(i))
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
                 gaps = len(gap_st.traces) - 1
-                print('Selected stream\n'.format(gap_st))
+                print('Selected stream:')
+                print(gap_st)
                 print('{} gaps'.format(gaps))
                 for gap_no in range(gaps):
                     samples = int((st[gap_no + 1].stats.starttime -
