@@ -595,13 +595,11 @@ class WaveformHandler:
                     print(gap_tr)
                     st.traces.append(gap_tr)
         print(st.__str__(extended=True))
-        st[0].plot()
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st.__str__(extended=True))
-        st[0].plot()
         st.merge()
         print(st.__str__(extended=True))
-        st.plot()
+        st[0].write('test_gap_fill.ms', format="MSEED")
         if return_trace:
             return st
 
