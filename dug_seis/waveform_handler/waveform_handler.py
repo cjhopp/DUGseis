@@ -583,7 +583,7 @@ class WaveformHandler:
                 print('{} gaps'.format(gaps))
                 for gap_no in range(gaps):
                     samples = int((gap_st[gap_no + 1].stats.starttime -
-                                   gaP_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
+                                   gap_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
                     print('{} samples'.format(samples))
                     mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
                     fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
