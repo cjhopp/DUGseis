@@ -582,16 +582,16 @@ class WaveformHandler:
                 print(gap_st)
                 print('{} gaps'.format(gaps))
                 for gap_no in range(gaps):
-                    samples = int((st[gap_no + 1].stats.starttime -
-                                   st[gap_no].stats.endtime) * st[gap_no].stats.sampling_rate)
+                    samples = int((gap_st[gap_no + 1].stats.starttime -
+                                   gaP_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
                     print('{} samples'.format(samples))
-                    mad = np.median(np.abs(st[gap_no].data - np.mean(st[gap_no].data)))
-                    fill = np.linspace(st[gap_no].data[-1], st[gap_no + 1].data[0], samples)
+                    mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
+                    fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
                     # Fill with noise
                     fill += np.random.normal(0, mad, fill.shape)
-                    gap_tr = Trace(stats=st[gap_no].stats, data=fill)
-                    gap_tr.stats.starttime = st[gap_no].stats.endtime
-                    gap_tr.stats.endtime = st[gap_no + 1].stat.starttime - st[gap_no + 1].stats.delta
+                    gap_tr = Trace(stats=gap_st[gap_no].stats, data=fill)
+                    gap_tr.stats.starttime = gap_st[gap_no].stats.endtime
+                    gap_tr.stats.endtime = gap_st[gap_no + 1].stat.starttime - gap_st[gap_no + 1].stats.delta
                     print(gap_tr)
                     st.traces.append(gap_tr)
         print(st)
