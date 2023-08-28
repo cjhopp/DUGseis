@@ -571,9 +571,11 @@ class WaveformHandler:
             if len(st.select(id=i)) == 1:
                 continue
             else:
+                print('Filling gaps')
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
                 gaps = len(gap_st) - 1
+                print(gap_st)
                 for gap_no in range(gaps):
                     samples = int((st[gap_no + 1].stats.starttime -
                                    st[gap_no].stats.endtime) * st[gap_no].stats.sampling_rate)
@@ -584,8 +586,11 @@ class WaveformHandler:
                     gap_tr = Trace(stats=st[gap_no].stats, data=fill)
                     gap_tr.stats.starttime = st[gap_no].stats.endtime
                     gap_tr.stats.endtime = st[gap_no + 1].stat.starttime - st[gap_no + 1].stats.delta
+                    print(gap_tr)
                     st.traces.append(gap_tr)
+        print(st)
         st.merge()
+        print(st)
         if return_trace:
             return st
 
