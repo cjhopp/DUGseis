@@ -582,6 +582,7 @@ class WaveformHandler:
                 for gap_no in range(gaps):
                     samples = int((st[gap_no + 1].stats.starttime -
                                    st[gap_no].stats.endtime) * st[gap_no].stats.sampling_rate)
+                    print('{} samples'.format(samples))
                     mad = np.median(np.abs(st[gap_no].data - np.mean(st[gap_no].data)))
                     fill = np.linspace(st[gap_no].data[-1], st[gap_no + 1].data[0], samples)
                     # Fill with noise
