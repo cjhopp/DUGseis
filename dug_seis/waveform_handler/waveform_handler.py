@@ -559,7 +559,6 @@ class WaveformHandler:
         rms = [tr for tr in st if tr.id not in channel_ids]
         for rm in rms:
             st.remove(rm)
-        st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         deltas = {tr.stats.delta for tr in st}
         if len(deltas) != 1:
             return st
@@ -594,6 +593,8 @@ class WaveformHandler:
                     # gap_tr.stats.endtime = gap_st[gap_no + 1].stats.starttime - gap_st[gap_no + 1].stats.delta
                     print(gap_tr)
                     st.traces.append(gap_tr)
+        print(st)
+        st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st)
         st.merge()
         print(st)
