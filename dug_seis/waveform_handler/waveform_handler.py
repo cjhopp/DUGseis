@@ -575,6 +575,8 @@ class WaveformHandler:
                 print('Filling gaps: {}'.format(i))
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
+                # Sort traces by starttime...
+                gap_st.traces.sort(key=lambda x: x.stats.starttime)
                 gaps = len(gap_st.traces) - 1
                 print('Selected stream:')
                 print(gap_st)
