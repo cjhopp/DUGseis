@@ -223,7 +223,7 @@ def denoise(st):
 def launch_processing(project):
     # Helper function to compute intervals over the project.
     intervals = util.compute_intervals(
-        project=project, interval_length_in_seconds=30, interval_overlap_in_seconds=0.1
+        project=project, interval_length_in_seconds=65, interval_overlap_in_seconds=0.1
     )
     total_event_count = 0
 
