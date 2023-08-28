@@ -583,6 +583,8 @@ class WaveformHandler:
                 for gap_no in range(gaps):
                     samples = int((gap_st[gap_no + 1].stats.starttime -
                                    gap_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
+                    if samples < 0:
+                        print('Overlap, not gap. Ignoring')
                     print('{} samples'.format(samples))
                     mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
                     try:
@@ -595,13 +597,12 @@ class WaveformHandler:
                     gap_tr = obspy.Trace(header=gap_st[gap_no].stats, data=fill)
                     gap_tr.stats.starttime = gap_st[gap_no].stats.endtime
                     gap_tr.stats.npts = fill.shape[0]
-                    # gap_tr.stats.endtime = gap_st[gap_no + 1].stats.starttime - gap_st[gap_no + 1].stats.delta
                     print(gap_tr)
                     st.traces.append(gap_tr)
         print(st.__str__(extended=True))
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         print(st.__str__(extended=True))
-        st.select(id=i).write('test_gap_fill.ms', format="MSEED")
+        # st.select(id=i).write('test_gap_fill.ms', format="MSEED")
         st.merge()
         print(st.__str__(extended=True))
         if return_trace:
