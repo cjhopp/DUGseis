@@ -565,6 +565,26 @@ class WaveformHandler:
             return st
         for tr in st:
             tr.stats.delta = list(deltas)[0]
+        # For 1-sec Vibbox gaps, fill with mad
+        ids = list(set([tr.id for tr in st]))
+        for i in ids:
+            if len(st.select(id=i)) == 1:
+                continue
+            else:
+                # Figure out gap(s) start/end and fill it
+                gap_st = st.select(id=i).copy()
+                gaps = len(gap_st) - 1
+                for gap_no, gap in enumerate(gaps):
+                    samples = (st[gap_no + 1].stats.starttime -
+                               st[gap_no].stats.endtime) * st[gap_no].stats.sampling_rate
+                    mad = np.median(np.abs(st[gap_no].data - np.mean(st[gap_no].data)))
+                    fill = np.linspace(st[gap_no].data[-1], st[gap_no + 1].data[0], samples)
+                    # Fill with noise
+                    fill += np.random.normal(0, mad, fill.shape)
+                    gap_tr = Trace(stats=st[gap_no].stats, data=fill)
+                    gap_tr.stats.starttime = st[gap_no].stats.endtime
+                    gap_tr.stats.endtime = st[gap_no + 1].stat.starttime - st[gap_no + 1].stats.delta
+                    st.traces.append(gap_tr)
         st.merge()
         if return_trace:
             return st
