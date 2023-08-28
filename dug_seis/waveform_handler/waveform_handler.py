@@ -60,7 +60,6 @@ def _get_open_vibbox_file(filename: pathlib.Path,
     Use a LRU cache to get fast repeated file accesses.
     """
     st = vibbox_read(filename, seeds, debug=0)
-    print(type(st))
     return st
 
 
@@ -585,6 +584,7 @@ class WaveformHandler:
                                    gap_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
                     if samples < 0:
                         print('Overlap, not gap. Ignoring')
+                        continue
                     print('{} samples'.format(samples))
                     mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
                     try:
