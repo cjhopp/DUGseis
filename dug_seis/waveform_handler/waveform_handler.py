@@ -574,7 +574,7 @@ class WaveformHandler:
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
                 gaps = len(gap_st) - 1
-                for gap_no, gap in enumerate(gaps):
+                for gap_no in range(gaps):
                     samples = (st[gap_no + 1].stats.starttime -
                                st[gap_no].stats.endtime) * st[gap_no].stats.sampling_rate
                     mad = np.median(np.abs(st[gap_no].data - np.mean(st[gap_no].data)))
