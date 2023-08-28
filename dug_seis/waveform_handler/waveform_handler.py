@@ -591,7 +591,7 @@ class WaveformHandler:
                     fill += np.random.normal(0, mad, fill.shape)
                     gap_tr = obspy.Trace(header=gap_st[gap_no].stats, data=fill)
                     gap_tr.stats.starttime = gap_st[gap_no].stats.endtime
-                    gap_tr.stats.endtime = gap_st[gap_no + 1].stat.starttime - gap_st[gap_no + 1].stats.delta
+                    gap_tr.stats.endtime = gap_st[gap_no + 1].stats.starttime - gap_st[gap_no + 1].stats.delta
                     print(gap_tr)
                     st.traces.append(gap_tr)
         print(st)
