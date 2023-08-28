@@ -589,7 +589,7 @@ class WaveformHandler:
                     fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
                     # Fill with noise
                     fill += np.random.normal(0, mad, fill.shape)
-                    gap_tr = Trace(stats=gap_st[gap_no].stats, data=fill)
+                    gap_tr = obspy.Trace(stats=gap_st[gap_no].stats, data=fill)
                     gap_tr.stats.starttime = gap_st[gap_no].stats.endtime
                     gap_tr.stats.endtime = gap_st[gap_no + 1].stat.starttime - gap_st[gap_no + 1].stats.delta
                     print(gap_tr)
