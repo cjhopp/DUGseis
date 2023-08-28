@@ -567,6 +567,7 @@ class WaveformHandler:
             tr.stats.delta = list(deltas)[0]
         # For 1-sec Vibbox gaps, fill with mad
         ids = list(set([tr.id for tr in st]))
+        print(ids)
         for i in ids:
             if len(st.select(id=i)) == 1:
                 continue
@@ -574,7 +575,7 @@ class WaveformHandler:
                 print('Filling gaps')
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
-                gaps = len(gap_st) - 1
+                gaps = len(gap_st.traces) - 1
                 print(gap_st)
                 for gap_no in range(gaps):
                     samples = int((st[gap_no + 1].stats.starttime -
