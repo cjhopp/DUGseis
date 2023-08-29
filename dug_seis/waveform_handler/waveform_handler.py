@@ -565,7 +565,6 @@ class WaveformHandler:
             tr.stats.delta = list(deltas)[0]
         # For 1-sec Vibbox gaps, fill with mad
         ids = list(set([tr.id for tr in st]))
-        print(ids)
         for i in ids:
             if len(st.select(id=i)) == 1:
                 continue
@@ -576,16 +575,18 @@ class WaveformHandler:
                 # Sort traces by starttime...
                 gap_st.traces.sort(key=lambda x: x.stats.starttime)
                 gaps = len(gap_st.traces) - 1
-                print('Selected stream:')
-                print(gap_st)
-                print('{} gaps'.format(gaps))
+                if debug == 1:
+                    print('Selected stream:')
+                    print(gap_st)
+                    print('{} gaps'.format(gaps))
                 for gap_no in range(gaps):
                     samples = int((gap_st[gap_no + 1].stats.starttime -
                                    gap_st[gap_no].stats.endtime) * gap_st[gap_no].stats.sampling_rate)
                     if samples < 0:
                         print('Overlap, not gap. Ignoring')
                         continue
-                    print('{} samples'.format(samples))
+                    if debug == 1:
+                        print('{} samples'.format(samples))
                     mad = np.median(np.abs(gap_st[gap_no].data - np.mean(gap_st[gap_no].data)))
                     try:
                         fill = np.linspace(gap_st[gap_no].data[-1], gap_st[gap_no + 1].data[0], samples)
@@ -599,12 +600,8 @@ class WaveformHandler:
                     gap_tr.stats.npts = fill.shape[0]
                     print(gap_tr)
                     st.traces.append(gap_tr)
-        print(st.__str__(extended=True))
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
-        print(st.__str__(extended=True))
-        # st.select(id=i).write('test_gap_fill.ms', format="MSEED")
         st.merge()
-        print(st.__str__(extended=True))
         if return_trace:
             return st
 
