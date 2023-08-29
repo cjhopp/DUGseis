@@ -23,7 +23,7 @@ import numpy as np
 try:
     from scipy.stats import median_absolute_deviation
 except ImportError:
-    from scipy.stats import median_abs_deviation
+    from scipy.stats import median_abs_deviation as median_absolute_deviation
 from obspy import Stream, Trace, UTCDateTime
 from obspy.core.trace import Stats
 
@@ -79,11 +79,16 @@ def vibbox_read(fname, seeds, debug=0):
     A -= VOLTAGE_RANGE  # Demean
     path, fname = os.path.split(fname)
     try:
+        # Clock signal attenuated at FSB, use 70xMAD
+        if 'FS' in seeds[0]:
+            thresh = 500
+        else:
+            thresh = 30
         # Use derivative of PPS signal to find pulse start
         dt = np.diff(A[:, clock_channel])
         # Use 70 * MAD threshold
         samp_to_first_full_second = np.where(
-            dt > np.mean(dt) + 30 * median_absolute_deviation(dt))[0][0]
+            dt > np.mean(dt) + thresh * median_absolute_deviation(dt))[0][0]
         # Condition where PPS not recorded properly
         if samp_to_first_full_second > 101000:
             print('Cannot read time signal')
@@ -92,13 +97,13 @@ def vibbox_read(fname, seeds, debug=0):
             print('Start of data is during time pulse. Using end of pulse.')
             # Negative dt
             samp_to_first_full_second = np.where(
-                dt < np.mean(dt) - 30 *
+                dt < np.mean(dt) - thresh *
                 median_absolute_deviation(dt))[0][0] + 90000
         if debug > 0:
             fig, ax = plt.subplots()
             ax.plot(dt, color='r')
             ax.plot(A[:, clock_channel], color='k')
-            ax.axhline(y=np.mean(dt) + 30 * median_absolute_deviation(dt),
+            ax.axhline(y=np.mean(dt) + thresh * median_absolute_deviation(dt),
                        color='magenta', linestyle='--')
             ax.axvline(x=samp_to_first_full_second, color='magenta',
                        linestyle='--')
