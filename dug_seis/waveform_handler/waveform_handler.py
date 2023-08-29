@@ -508,8 +508,6 @@ class WaveformHandler:
             start_time: The start time of the requested data.
             end_time: The end time of the requested data.
         """
-        print(start_time, end_time)
-        # try:
         st = self.get_waveform_data(
                 channel_ids=channel_ids,
                 start_time=start_time,
@@ -517,8 +515,6 @@ class WaveformHandler:
                 npts=10000000000000,
                 return_trace=True,
             )
-        # except (ValueError, TypeError) as e:
-        #     st = obspy.Stream()
         return st
 
     def get_waveform_data(
@@ -528,6 +524,7 @@ class WaveformHandler:
         end_time: obspy.UTCDateTime,
         npts: int,
         return_trace: bool = False,
+        debug: int = 0,
     ):
         """
         Lower level waveform access. Please use the ``.get_waveforms()`` method
