@@ -566,7 +566,8 @@ class WaveformHandler:
             if len(st.select(id=i)) == 1:
                 continue
             else:
-                print('Filling gaps: {}'.format(i))
+                if debug == 1:
+                    print('Filling gaps: {}'.format(i))
                 # Figure out gap(s) start/end and fill it
                 gap_st = st.select(id=i).copy()
                 # Sort traces by starttime...
@@ -595,7 +596,6 @@ class WaveformHandler:
                     gap_tr = obspy.Trace(header=gap_st[gap_no].stats, data=fill)
                     gap_tr.stats.starttime = gap_st[gap_no].stats.endtime
                     gap_tr.stats.npts = fill.shape[0]
-                    print(gap_tr)
                     st.traces.append(gap_tr)
         st.trim(obspy.UTCDateTime(start_time), obspy.UTCDateTime(end_time))
         st.merge()
