@@ -97,7 +97,7 @@ def plot_magtime(times, mags, colors, axes):
 
 
 def plot_mapview(locs, boreholes, colors, mags, stations, axes):
-    hull_pts = np.load('/media/chopp/Data1/chet-collab/model/4100L_xy_alphashape_pts.npy')
+    hull_pts = np.load('/home/chopp/data/chet-cussp/model/4100L_xy_alphashape_pts.npy')
     mag_inds = np.where(np.array(mags) > -999.)
     mags = np.array(mags)[mag_inds]
     # Plot boreholes
@@ -119,12 +119,16 @@ def plot_mapview(locs, boreholes, colors, mags, stations, axes):
     sx, sy, sz = zip(*stations)
     axes.scatter(sx, sy, marker='v', color='r')
     x, y, z = zip(*locs)
-    sizes = ((mags - np.min(mags)) * 2)**2
+    print(x, y, z)
+    sizes = np.ones(len(mags))*50
+    # sizes = ((mags - np.min(mags)) * 2)**2
     axes.scatter(np.array(x)[mag_inds], np.array(y)[mag_inds],
                  marker='o', c=np.array(colors)[mag_inds], s=sizes)
     axes.plot(hull_pts[0, :], hull_pts[1, :], linewidth=0.9, color='k')
-    axes.set_ylim([-920, -840])
-    axes.set_xlim([1200, 1280])
+    # axes.set_ylim([-920, -840])
+    # axes.set_xlim([1200, 1280])
+    axes.set_xlim([1150, 1330])
+    axes.set_ylim([-970, -790])
     axes.set_xlabel('Easting [HMC]', fontsize=14)
     axes.set_ylabel('Northing [HMC]', fontsize=14)
     return
@@ -164,7 +168,13 @@ def plot_all(catalog, boreholes, global_to_local, inventory,
                      float(ev.preferred_origin().extra.hmc_elev.value))
                     for ev in catalog]
     except AttributeError:
-        hmc_locs = [global_to_local(point=pt) for pt in locs]
+        hmc_locs = [
+            global_to_local(point=(ev.preferred_origin().latitude,
+                                   ev.preferred_origin().longitude,
+                                   -ev.preferred_origin().depth),
+                            local_crs=26713, global_crs=4326,
+                            translation_vector=[598420.3842806489, 4912272.275375654, 0.0]) for ev in catalog
+        ]
     colors = [date2num(ev.picks[0].time) for ev in catalog]
     times = [ev.preferred_origin().time.datetime for ev in catalog]
     with open('meq_locations.csv', 'w') as f:
@@ -224,7 +234,7 @@ def plot_catalog_compare(catalogs, boreholes, inventory):
                     for ev in cat]
         locs_list.append(hmc_locs)
     # Mapview
-    hull_pts = np.load('/media/chet/data/chet-collab/model/4100L_xy_alphashape_pts.npy')
+    hull_pts = np.load('data/chet-cussp/model/4100L_xy_alphashape_pts.npy')
     # Plot boreholes
     for well, xyzd in boreholes.items():
         if well == 'TU':
